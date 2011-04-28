@@ -1,7 +1,9 @@
 package org.flemit.tests.reflection
 {
+	import asunit.asserts.assertNotNull;
+	import asunit.asserts.assertTrue;
+
 	import org.flemit.reflection.Type;
-	import org.flexunit.Assert;
 	
 	public class TypeFixture
 	{
@@ -16,7 +18,7 @@ package org.flemit.tests.reflection
 			
 			var type : Type = Type.getType(xml);
 			
-			Assert.assertNotNull(type);
+			assertNotNull(type);
 		}
 		
 		[Test]
@@ -27,7 +29,7 @@ package org.flemit.tests.reflection
 			
 			var ret : Boolean = classType.isAssignableFrom(fixtureType);
 			
-			Assert.assertTrue(ret);
+			assertTrue(ret);
 		}
 
 	}

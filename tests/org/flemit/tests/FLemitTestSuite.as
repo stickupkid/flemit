@@ -7,7 +7,6 @@ package org.flemit.tests
 	public class FLemitTestSuite
 	{
 		public var swfOutput : SWFOutputFixture; 
-		public var swfReader : SWFReaderFixture;
 		public var byteCodeWriter : ByteCodeWriterFixture;
 	}
 }
