@@ -5,7 +5,7 @@ package org.flemit.bytecode
 	import flash.utils.IDataOutput;
 	
 	
-	public class ByteCodeWriter implements IByteCodeWriter
+	public final class ByteCodeWriter implements IByteCodeWriter
 	{
 		private var _buffer : ByteArray;		
 		private var _output : IDataOutput;
@@ -21,7 +21,7 @@ package org.flemit.bytecode
 		
 		public function writeString(value : String) : void
 		{
-			this.writeU30(value.length);
+			writeU30(value.length);
 			
 			_output.writeUTFBytes(value);
 		}
@@ -46,19 +46,17 @@ package org.flemit.bytecode
 		
 		public function writeS24(value : int) : void
 		{
-			//_buffer.clear();
-			
 			_buffer.writeInt(value);
 			writeBuffer(3);
 		}
 		
 		private function writeBuffer(byteCount : uint = 0) : void
 		{
-			var bytesAvailable : uint = _buffer.position;
+			const bytesAvailable : uint = _buffer.position;
 			
 			_buffer.position = 0;
 			
-			var bytesToRead : uint = (byteCount == 0) ? bytesAvailable : byteCount;
+			const bytesToRead : uint = byteCount == 0 ? bytesAvailable : byteCount;
 			
 			_output.writeBytes(_buffer, 0, bytesToRead);
 		}
@@ -70,20 +68,16 @@ package org.flemit.bytecode
 		
 		public function writeU32(value : uint) : void
 		{
-			var intVal : int = value as int;
-			
 			if (value > 0x7FFFFFFF)
 			{
-				throw new ArgumentError("Values greater than 7FFFFFFF currently not supported due to problems with bitshifting in AS3");
+				throw new ArgumentError("Values greater than 7FFFFFFF currently not supported " + 
+													"due to problems with bitshifting in AS3");
 			}
 			
-			//_buffer.clear();
-			
 			var numBytes : uint = 0;
-			
 			while(numBytes == 0 || (value > 0 && numBytes < 5))
 			{
-				var moreBytesFlag : int = (value > 0x7F) ? 0x80 : 0;
+				const moreBytesFlag : int = (value > 0x7F) ? 0x80 : 0;
 				
 				_buffer.writeByte(value & 0x7F | moreBytesFlag);
 				

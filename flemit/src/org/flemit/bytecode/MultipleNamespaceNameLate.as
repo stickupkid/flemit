@@ -1,11 +1,13 @@
 package org.flemit.bytecode
 {
 	
-	public class MultipleNamespaceNameLate extends Multiname
+	public final class MultipleNamespaceNameLate extends Multiname
 	{
 		private var _namespaceSet : NamespaceSet;
 		
-		public function MultipleNamespaceNameLate(namespaceSet : NamespaceSet, kind : uint = MultinameKind.MULTINAME_LATE)
+		public function MultipleNamespaceNameLate(	namespaceSet : NamespaceSet, 
+													kind : uint = MultinameKind.MULTINAME_LATE
+													)
 		{
 			super(kind);
 			
@@ -13,6 +15,5 @@ package org.flemit.bytecode
 		}
 		
 		public function get namespaceSet() : NamespaceSet { return _namespaceSet; }
-
 	}
 }

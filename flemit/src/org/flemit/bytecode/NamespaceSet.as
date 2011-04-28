@@ -1,7 +1,7 @@
 package org.flemit.bytecode
 {
 	
-	public class NamespaceSet implements IEqualityComparable
+	public final class NamespaceSet implements IEqualityComparable
 	{
 		private var _namespaces : Array;
 		
@@ -10,28 +10,28 @@ package org.flemit.bytecode
 			_namespaces = [].concat(namespaces);
 		}
 		
-		public function get namespaces() : Array { return _namespaces; }
-		
 		public function equals(object : Object) : Boolean 
 		{
-			var namespaceSet : NamespaceSet = object as NamespaceSet;
-			
+			const namespaceSet : NamespaceSet = object as NamespaceSet;
 			if (namespaceSet != null)
 			{
-				if (namespaceSet._namespaces.length == _namespaces.length)
+				const nsSetTotal : int = namespaceSet._namespaces.length;
+				const nsTotal : int = _namespaces.length;
+				if (nsSetTotal == nsTotal)
 				{
-					for (var i:uint=0; i<_namespaces.length; i++)
+					for (var i : int = 0; i<nsTotal; i++)
 					{
-						if (!IEqualityComparable(namespaceSet._namespaces[i]).equals(_namespaces[i]))
+						const comparable : IEqualityComparable = namespaceSet._namespaces[i];
+						if (!comparable.equals(_namespaces[i]))
 							return false;
 					}
-					
 					return true;
 				}
 			}
-			
 			return false;
 		}
+		
+		public function get namespaces() : Array { return _namespaces; }
 		
 		public function toString() : String
 		{

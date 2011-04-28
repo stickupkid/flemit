@@ -1,11 +1,12 @@
 package org.flemit.bytecode
 {
-	
-	public class TraitAttribute
+	public final class TraitAttribute
 	{
-		public static const FINAL : int = 0x1;
-		public static const OVERRIDE : int = 0x2;
-		public static const METADATA : int = 0x4;
 
+		public static const FINAL : int = 0x1;
+
+		public static const OVERRIDE : int = 0x2;
+
+		public static const METADATA : int = 0x4;
 	}
 }

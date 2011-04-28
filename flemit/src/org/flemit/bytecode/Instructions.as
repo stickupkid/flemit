@@ -1,6 +1,6 @@
 package org.flemit.bytecode
 {
-	public class Instructions
+	public final class Instructions
 	{
 		public static const Add : uint =  0xa0;
 		public static const AddInteger : uint =  0xc5;

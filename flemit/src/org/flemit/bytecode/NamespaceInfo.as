@@ -1,16 +1,16 @@
 package org.flemit.bytecode
 {
-	
-	public class NamespaceInfo
+	public final class NamespaceInfo
 	{
-		public function NamespaceInfo(kind : uint, name : uint)
+
+		public var kind : int;
+
+		public var name : int;
+
+		public function NamespaceInfo(kind : int, name : int)
 		{
 			this.kind = kind;
 			this.name = name;
 		}
-		
-		public var kind : uint;
-		public var name : uint;
-
 	}
 }

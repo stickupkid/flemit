@@ -7,10 +7,8 @@ package org.flemit.bytecode
 	
 	import flash.utils.Dictionary;
 		
-	public class DynamicClass extends Type
+	public final class DynamicClass extends Type
 	{
-		//public var instanceInitialiser : DynamicMethod;
-		
 		public var methodBodies : Dictionary = new Dictionary();
 		
 		public function DynamicClass(qname : QualifiedName, baseClass : Type, interfaces : Array)
@@ -42,10 +40,6 @@ package org.flemit.bytecode
 			_fields.push(field);
 		}
 		
-		public function set constructor(value : MethodInfo) : void
-		{
-			_constructor = value;
-		}
-
+		public function set constructor(value : MethodInfo) : void { _constructor = value; }
 	}
 }
