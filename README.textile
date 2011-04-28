@@ -1,0 +1,3 @@
+h1. FLemit
+
+FLemit is a library that allows dynamic ABC (ActionScript Byte Code) code to be generated and executed at runtime. FLemit is NOT an ActionScript compiler; it requires users have a thorough knowledge of the AVM2.
