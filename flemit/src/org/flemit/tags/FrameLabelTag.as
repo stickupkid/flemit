@@ -4,7 +4,7 @@ package org.flemit.tags
 	import org.flemit.Tag;
 	
 	
-	public class FrameLabelTag extends Tag
+	public final class FrameLabelTag extends Tag
 	{
 		public static const TAG_ID : int = 0x2B; 
 		

@@ -3,8 +3,7 @@ package org.flemit.tags
 	import org.flemit.ISWFOutput;
 	import org.flemit.Tag;
 	
-	
-	public class EndTag extends Tag
+	public final class EndTag extends Tag
 	{
 		public static const TAG_ID : int = 0x0; 
 		
@@ -16,6 +15,5 @@ package org.flemit.tags
 		public override function writeData(output:ISWFOutput):void		
 		{
 		}
-
 	}
 }

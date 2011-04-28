@@ -4,7 +4,7 @@ package org.flemit.tags
 	import org.flemit.Tag;
 	
 	
-	public class FileAttributesTag extends Tag
+	public final class FileAttributesTag extends Tag
 	{
 		public static const TAG_ID : int = 0x45; 
 		
@@ -30,10 +30,34 @@ package org.flemit.tags
 			super(TAG_ID);
 		}
 		
+		public static function create(
+										useDirectBlit : Boolean, 
+										useGPU : Boolean, 
+										hasMetadata : Boolean, 
+										actionScript3 : Boolean, 
+										useNetwork : Boolean
+										) : FileAttributesTag
+		{
+			const tag : FileAttributesTag = new FileAttributesTag();
+			
+			tag.useDirectBlit = useDirectBlit;
+			tag.useGPU = useGPU;
+			tag.hasMetadata = hasMetadata;
+			tag.actionScript3 = actionScript3;
+			tag.useNetwork = useNetwork;
+			
+			return tag;
+		}
+		
 		public override function writeData(output:ISWFOutput):void		
 		{
-			for each(var prop : String in _outputOrder) 
-				output.writeBit(this[prop] as Boolean);
+			for each(var prop : String in _outputOrder)
+			{
+				if(hasOwnProperty(prop))
+					output.writeBit(this[prop] as Boolean);
+				else
+					output.writeBit(false);
+			}
 				
 			output.align();
 		}
@@ -52,20 +76,5 @@ package org.flemit.tags
 		
 		public function get useNetwork() : Boolean { return _useNetwork; }
 		public function set useNetwork(value : Boolean) : void { _useNetwork = value; }
-		
-		private function get reserved() : Boolean { return false; }
-		
-		public static function create(useDirectBlit : Boolean, useGPU : Boolean, hasMetadata : Boolean, actionScript3 : Boolean, useNetwork : Boolean) : FileAttributesTag
-		{
-			var tag : FileAttributesTag = new FileAttributesTag();
-			
-			tag.useDirectBlit = useDirectBlit;
-			tag.useGPU = useDirectBlit;
-			tag.hasMetadata = hasMetadata;
-			tag.actionScript3 = actionScript3;
-			tag.useNetwork = useNetwork;
-			
-			return tag;
-		}
 	}
 }

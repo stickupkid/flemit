@@ -4,17 +4,26 @@ package org.flemit.tags
 	import org.flemit.Tag;
 	
 	
-	public class SetBackgroundColorTag extends Tag
+	public final class SetBackgroundColorTag extends Tag
 	{
 		public static const TAG_ID : int = 0x9;
 		
-		private var _red : uint;
-		private var _green : uint;
-		private var _blue : uint;
+		private var _red : int;
 		
-		public function SetBackgroundColorTag(red : uint = 0, green : uint = 0, blue : uint = 0)
+		private var _green : int;
+		
+		private var _blue : int;
+		
+		public function SetBackgroundColorTag(red : int = 0, green : int = 0, blue : int = 0)
 		{
 			super(TAG_ID);
+			
+			if(red < 0)
+				throw new ArgumentError('Red can not be less than 0.');
+			if(green < 0)
+				throw new ArgumentError('Green can not be less than 0.');
+			if(blue < 0)
+				throw new ArgumentError('Blue can not be less than 0.');	
 			
 			_red = red;
 			_green = green;
@@ -28,13 +37,13 @@ package org.flemit.tags
 			output.writeUI8(_blue);
 		}
 		
-		public function get red() : uint { return _red; }
-		public function set red(value : uint) : void { _red = value; }
+		public function get red() : int { return _red; }
+		public function set red(value : int) : void { _red = value; }
 		
-		public function get green() : uint { return _green; }
-		public function set green(value : uint) : void { _green = value; }
+		public function get green() : int { return _green; }
+		public function set green(value : int) : void { _green = value; }
 		
-		public function get blue() : uint { return _blue; }
-		public function set blue(value : uint) : void { _blue = value; }
+		public function get blue() : int { return _blue; }
+		public function set blue(value : int) : void { _blue = value; }
 	}
 }

@@ -1,18 +1,16 @@
 package org.flemit
 {
-	
-	public class TagInfo
+	public final class TagInfo
 	{
-		private var _tagID : uint;
-		private var _length : uint;
-		
-		public function TagInfo(tagID : uint, length : uint)
+
+		private var _tagID : int;
+
+		private var _length : int;
+
+		public function TagInfo(tagID : int, length : int)
 		{
 			_tagID = tagID;
 			_length = length;
 		}
-		
-		
-
 	}
 }

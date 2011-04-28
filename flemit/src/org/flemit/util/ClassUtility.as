@@ -5,14 +5,32 @@ package org.flemit.util
 	
 	public class ClassUtility
 	{
+		
+		public static const MAX_CREATECLASS_ARG_COUNT : int = 50;
+		
+		private static const _createClassDelegates : Array = [
+			createClass0, createClass1, createClass2, createClass3, createClass4, 
+			createClass5, createClass6, createClass7, createClass8, createClass9, 
+			createClass10, createClass11, createClass12, createClass13, createClass14, 
+			createClass15, createClass16, createClass17, createClass18, createClass19, 
+			createClass20, createClass21, createClass22, createClass23, createClass24, 
+			createClass25, createClass26, createClass27, createClass28, createClass29, 
+			createClass30, createClass31, createClass32, createClass33, createClass34, 
+			createClass35, createClass36, createClass37, createClass38, createClass39, 
+			createClass40, createClass41, createClass42, createClass43, createClass44, 
+			createClass45, createClass46, createClass47, createClass48, createClass49, 
+			createClass50
+			];
+		
 		public static function assertAbstract(instance : Object, cls : Class) : void
 		{
-			var instanceName : String = getQualifiedClassName(instance);
-			var className : String = getQualifiedClassName(cls); 
+			const instanceName : String = getQualifiedClassName(instance);
+			const className : String = getQualifiedClassName(cls); 
 			
 			if (instanceName == className)
 			{
-				throw new IllegalOperationError("Cannot create instance of abstract class '" + className + "'");
+				throw new IllegalOperationError("Cannot create instance of abstract class '" + 
+																				className + "'");
 			}
 		}
 		
@@ -25,13 +43,16 @@ package org.flemit.util
 			else
 				classString = getQualifiedClassName(cls);
 				
-			classString = classString.replace('::','.');
+			classString = classString.replace('::', '.');
 				
 			
-			var packageParts : Array = packageString.split('.');
-			var classParts : Array = classString.split('.');
+			const packageParts : Array = packageString.split('.');
+			const packagePartsTotal : int = packageParts.length;
 			
-			for (var i:uint=0; i<packageParts.length && i<classParts.length; i++)
+			const classParts : Array = classString.split('.');
+			const classPartsTotal : int = classParts.length;
+			
+			for (var i:uint=0; i<packagePartsTotal && i<classPartsTotal; i++)
 			{
 				if (packageParts[i] == '*')
 					return true;
@@ -40,19 +61,19 @@ package org.flemit.util
 					return false;
 			}
 			
-			return (packageParts.length == classParts.length);
+			return (packagePartsTotal == classPartsTotal);
 		}
 		
 		public static function createClass(cls : Class, args : Array) : Object
 		{
-			var delegateArgs : Array = [cls].concat(args); // clone
+			const delegateArgs : Array = [cls].concat(args); // clone
 			
 			if (args.length > MAX_CREATECLASS_ARG_COUNT)
 			{
-				throw new ArgumentError("Argument count greater than supported (10)");
+				throw new ArgumentError("Argument count greater than supported (50)");
 			}
 			
-			var delegate : Function = _createClassDelegates[args.length];
+			const delegate : Function = _createClassDelegates[args.length];
 			
 			return delegate.apply(null, delegateArgs);
 		}
@@ -108,21 +129,5 @@ package org.flemit.util
 		private static function createClass48(cls : Class, p1 : *, p2 : *, p3 : *, p4 : *, p5 : *, p6 : *, p7 : *, p8 : *, p9 : *, p10 : *, p11 : *, p12 : *, p13 : *, p14 : *, p15 : *, p16 : *, p17 : *, p18 : *, p19 : *, p20 : *, p21 : *, p22 : *, p23 : *, p24 : *, p25 : *, p26 : *, p27 : *, p28 : *, p29 : *, p30 : *, p31 : *, p32 : *, p33 : *, p34 : *, p35 : *, p36 : *, p37 : *, p38 : *, p39 : *, p40 : *, p41 : *, p42 : *, p43 : *, p44 : *, p45 : *, p46 : *, p47 : *, p48 : *) : Object { return new cls(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27, p28, p29, p30, p31, p32, p33, p34, p35, p36, p37, p38, p39, p40, p41, p42, p43, p44, p45, p46, p47, p48); }
 		private static function createClass49(cls : Class, p1 : *, p2 : *, p3 : *, p4 : *, p5 : *, p6 : *, p7 : *, p8 : *, p9 : *, p10 : *, p11 : *, p12 : *, p13 : *, p14 : *, p15 : *, p16 : *, p17 : *, p18 : *, p19 : *, p20 : *, p21 : *, p22 : *, p23 : *, p24 : *, p25 : *, p26 : *, p27 : *, p28 : *, p29 : *, p30 : *, p31 : *, p32 : *, p33 : *, p34 : *, p35 : *, p36 : *, p37 : *, p38 : *, p39 : *, p40 : *, p41 : *, p42 : *, p43 : *, p44 : *, p45 : *, p46 : *, p47 : *, p48 : *, p49 : *) : Object { return new cls(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27, p28, p29, p30, p31, p32, p33, p34, p35, p36, p37, p38, p39, p40, p41, p42, p43, p44, p45, p46, p47, p48, p49); }
 		private static function createClass50(cls : Class, p1 : *, p2 : *, p3 : *, p4 : *, p5 : *, p6 : *, p7 : *, p8 : *, p9 : *, p10 : *, p11 : *, p12 : *, p13 : *, p14 : *, p15 : *, p16 : *, p17 : *, p18 : *, p19 : *, p20 : *, p21 : *, p22 : *, p23 : *, p24 : *, p25 : *, p26 : *, p27 : *, p28 : *, p29 : *, p30 : *, p31 : *, p32 : *, p33 : *, p34 : *, p35 : *, p36 : *, p37 : *, p38 : *, p39 : *, p40 : *, p41 : *, p42 : *, p43 : *, p44 : *, p45 : *, p46 : *, p47 : *, p48 : *, p49 : *, p50 : *) : Object { return new cls(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27, p28, p29, p30, p31, p32, p33, p34, p35, p36, p37, p38, p39, p40, p41, p42, p43, p44, p45, p46, p47, p48, p49, p50); }
-
-		public static const MAX_CREATECLASS_ARG_COUNT : uint = 50;
-		
-		private static var _createClassDelegates : Array = [
-			createClass0, createClass1, createClass2, createClass3, createClass4, 
-			createClass5, createClass6, createClass7, createClass8, createClass9, 
-			createClass10, createClass11, createClass12, createClass13, createClass14, 
-			createClass15, createClass16, createClass17, createClass18, createClass19, 
-			createClass20, createClass21, createClass22, createClass23, createClass24, 
-			createClass25, createClass26, createClass27, createClass28, createClass29, 
-			createClass30, createClass31, createClass32, createClass33, createClass34, 
-			createClass35, createClass36, createClass37, createClass38, createClass39, 
-			createClass40, createClass41, createClass42, createClass43, createClass44, 
-			createClass45, createClass46, createClass47, createClass48, createClass49, 
-			createClass50
-			];
 	}
 }

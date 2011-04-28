@@ -1,5 +1,6 @@
 package org.flemit.reflection
 {
+	import org.flemit.util.DescribeTypeUtil;
 	import flash.utils.*;
 	import flash.system.*;
 	import flash.net.registerClassAlias;
@@ -19,37 +20,36 @@ package org.flemit.reflection
 		{
 			if (_typeCache[cls] == null)
 			{
-				var className : String = getQualifiedClassName(cls);
+				const className : String = getQualifiedClassName(cls);
 				
 				if (!applicationDomain.hasDefinition(className))
 				{
 					registerClassAlias(className, cls);
 				}
 				
-				var typeXml : XML = flash.utils.describeType(cls);
+				const typeXml : XML = DescribeTypeUtil.describe(cls);
 				
-				var typeName : String = typeXml.@name.toString();
+				const typeName : String = typeXml.@name.toString();
 				
-				var genericParams : Array = getGenericParameters(typeName);
+				const genericParams : Array = getGenericParameters(typeName);
 				
-				var typeDefinition : Type = (genericParams.length > 0)
-					? getGenericTypeDefinition(typeName)
-					: null;
+				const typeDefinition : Type = genericParams.length > 0
+												? getGenericTypeDefinition(typeName)
+												: null;
 					
-				
 				if (typeDefinition != null)
 				{
 					// TODO: This should only happen once
 					typeDefinition.setGenericParameterCount(genericParams.length);
 				}
 				
-				var qname : QualifiedName = getQualifiedName(typeName);
+				const qname : QualifiedName = getQualifiedName(typeName);
 				
-				var multiname : Multiname = (typeDefinition != null)
-					? getGenericName(typeDefinition, genericParams)
-					: qname;
+				const multiname : Multiname = typeDefinition != null
+												? getGenericName(typeDefinition, genericParams)
+												: qname;
 
-				var type : Type = new Type(qname, multiname, cls);
+				const type : Type = new Type(qname, multiname, cls);
 				_typeCache[cls] = type; // for circular references
 								
 				setClassFlags(type, typeXml);
@@ -59,9 +59,7 @@ package org.flemit.reflection
 				type.setInterfaces(getInterfaces(typeXml));
 				
 				if (!type.isInterface && typeXml.factory.constructor.length() != 0)
-				{
 					type.setConstructor(getMethodInfo(typeXml.factory.constructor[0], type, false));
-				}
 				
 				addMembers(typeXml, type, true);
 				addMembers(typeXml.factory[0], type, false);

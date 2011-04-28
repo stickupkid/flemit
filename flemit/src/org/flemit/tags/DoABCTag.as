@@ -8,12 +8,18 @@ package org.flemit.tags
 	/**
 	 * Represents an AVM2 bytecode tag
 	 */	
-	public class DoABCTag extends Tag
+	public final class DoABCTag extends Tag
 	{
 		public static const TAG_ID : int = 0x52;
 		
+		private static const FLAGS_NONE : int = 0x0;
+		
+		private static const FLAGS_LAZY : int = 0x1; 
+		
 		private var _layout : IByteCodeLayout;
+		
 		private var _name : String;
+		
 		private var _lazy : Boolean;
 		
 		public function DoABCTag(lazy : Boolean, name : String, layout : IByteCodeLayout)
@@ -27,7 +33,7 @@ package org.flemit.tags
 		
 		public override function writeData(output:ISWFOutput):void
 		{
-			var flags : uint = getFlags();
+			const flags : uint = getFlags();
 			
 			// flags
 			output.writeUI32(flags);
@@ -35,7 +41,7 @@ package org.flemit.tags
 			// name
 			output.writeString(_name);
 			
-			var byteArray : ByteArray = new ByteArray();
+			const byteArray : ByteArray = new ByteArray();
 			
 			_layout.write(byteArray);
 			
@@ -56,8 +62,5 @@ package org.flemit.tags
 				? FLAGS_LAZY
 				: FLAGS_NONE; 
 		}
-		
-		private static const FLAGS_NONE : uint = 0x0;
-		private static const FLAGS_LAZY : uint = 0x1; 
 	}
 }

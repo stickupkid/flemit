@@ -1,14 +1,13 @@
 package org.flemit.reflection
 {
-	import org.flemit.reflection.FieldInfo;
-	import org.flemit.reflection.Type;
-	
+	import org.flemit.util.DescribeTypeUtil;
+
 	import flash.utils.Dictionary;
 	import flash.utils.getQualifiedClassName;
-	import flash.utils.describeType;
 	
-	public class Enum
+	public final class Enum
 	{
+		
 		private static var _index : Dictionary = new Dictionary(true);
 		
 		public function Enum()
@@ -19,23 +18,15 @@ package org.flemit.reflection
 		{
 			if (_index[enumClass] == null)
 			{
-				var dict : Dictionary = new Dictionary(false);
+				const dict : Dictionary = new Dictionary(false);
 				
-				for each(var constNode : XML in describeType(enumClass)..constant)
+				for each(var constNode : XML in DescribeTypeUtil.describe(enumClass)..constant)
 				{
-					var fieldName : String = constNode.@name.toString();
+					const fieldName : String = constNode.@name.toString();
 					
 					dict[enumClass[fieldName]] = fieldName;
 				}
-				
-				/* for each (var field : FieldInfo in Type.getType(enumClass).getFields())
-				{
-					if (field.isStatic)
-					{
-						dict[field.name] = enumClass[field.name];
-					}
-				} */
-				
+								
 				_index[enumClass] = dict;
 			}			
 			
@@ -44,8 +35,8 @@ package org.flemit.reflection
 		
 		public static function getNames(enumClass : Class) : Array
 		{
-			var dict : Dictionary = indexEnum(enumClass);
-			var names : Array = new Array();
+			const dict : Dictionary = indexEnum(enumClass);
+			const names : Array = [];
 			
 			for each (var name : String in dict)  
 			{
@@ -57,20 +48,18 @@ package org.flemit.reflection
 		
 		public static function getName(enumClass : Class, value : Object) : String
 		{
-			var dict : Dictionary = indexEnum(enumClass);
+			const dict : Dictionary = indexEnum(enumClass);
 			
 			if (dict[value] == null)
-			{
-				throw new ArgumentError(getQualifiedClassName(enumClass) + " does not define a name with value: " + value.toString());
-			}
+				throw new ArgumentError(getQualifiedClassName(enumClass) + 
+										" does not define a name with value: " + value);
 			
 			return dict[value] as String;
 		}
 		
 		public static function isDefined(enumClass : Class, value : Object) : Boolean
 		{
-			var dict : Dictionary = indexEnum(enumClass);
-			
+			const dict : Dictionary = indexEnum(enumClass);
 			return (dict[value] != null);
 		}
 	}

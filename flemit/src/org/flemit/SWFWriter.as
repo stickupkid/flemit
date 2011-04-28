@@ -12,7 +12,9 @@ package org.flemit
 												0xA6, 0x00, 0x00, 0x18, 0x01, 0x00];
 		
 		private var _compress : Boolean = false;
+		
 		private var _tagDataBuffer : ByteArray;
+		
 		private var _tagDataWriter : SWFOutput;
 		
 		public function SWFWriter()
@@ -21,30 +23,22 @@ package org.flemit
 			_tagDataWriter = new SWFOutput(_tagDataBuffer);
 		}
 		
-		public function get compress() : Boolean
-		{
-			return _compress;
-		}
-		
-		public function set compress(value : Boolean) : void
-		{
-			_compress = value;
-		}
-		
 		public function write(output : IDataOutput, header : SWFHeader, tags : Array) : void
 		{
 			output.endian = Endian.BIG_ENDIAN;
 			
-			var buffer : ByteArray = new ByteArray();
+			const buffer : ByteArray = new ByteArray();
 			
 			var swfOutput : SWFOutput = new SWFOutput(buffer);
+			
 			writeInternal(swfOutput, header, tags);
+			
 			buffer.position = 0;
 			
-			var PRE_HEADER_SIZE : int = 8; // FWS[VERSION][FILESIZE]
+			const PRE_HEADER_SIZE : int = 8; // FWS[VERSION][FILESIZE]
 			
 			// FileSize is uncompressed
-			var fileSize : int =buffer.bytesAvailable + PRE_HEADER_SIZE;
+			const fileSize : int = buffer.bytesAvailable + PRE_HEADER_SIZE;
 			 
 			swfOutput = new SWFOutput(output);
 			
@@ -69,7 +63,10 @@ package org.flemit
 			output.writeBytes(buffer, 0, buffer.bytesAvailable);
 		}
 		
-		private function writeInternal(swfOutput : SWFOutput, header : SWFHeader, tags : Array) : void
+		private function writeInternal(	swfOutput : SWFOutput, 
+										header : SWFHeader, 
+										tags : Array
+										) : void
 		{
 			// TODO: Write the actual header here
 			for each(var byte : int in _hardCodedHeader)
@@ -104,5 +101,8 @@ package org.flemit
 				output.writeBytes(_tagDataBuffer, 0, tagLength);
 			}
 		}
+				
+		public function get compress() : Boolean { return _compress; }
+		public function set compress(value : Boolean) : void { _compress = value; }
 	}
 }

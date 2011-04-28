@@ -1,24 +1,21 @@
 package org.flemit.util
 {
-	import org.flemit.reflection.*;
+	import org.flemit.reflection.MethodInfo;
+	import org.flemit.reflection.ParameterInfo;
 	
-	public class MethodUtil
+	public final class MethodUtil
 	{
+		
 		public static function getRequiredArgumentCount(method :  MethodInfo) : uint
 		{
-			var i : uint = 0;
-			
-			for (; i<method.parameters.length; i++)
+			const total : int = method.parameters.length;
+			for (var i : int = 0; i<total; i++)
 			{
-				var param : ParameterInfo = method.parameters[i];
-				
+				const param : ParameterInfo = method.parameters[i];
 				if (param.optional)
-				{
 					return i;
-				}
 			}
-			
-			return method.parameters.length;
+			return total;
 		}
 	}
 }

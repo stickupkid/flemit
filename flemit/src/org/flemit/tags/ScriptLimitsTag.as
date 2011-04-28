@@ -4,16 +4,22 @@ package org.flemit.tags
 	import org.flemit.Tag;
 	
 	
-	public class ScriptLimitsTag extends Tag
+	public final class ScriptLimitsTag extends Tag
 	{
 		public static const TAG_ID : int = 0x41;
 		
-		private var _maxRecursionDepth : int = 1000;
-		private var _scriptTimeoutSeconds : int = 60;
+		private var _maxRecursionDepth : int;
 		
-		public function ScriptLimitsTag()
+		private var _scriptTimeoutSeconds : int;
+		
+		public function ScriptLimitsTag(	maxRecursionDepth : int = 1000, 
+											scriptTimeoutSeconds : int = 60
+											)
 		{
 			super(TAG_ID);
+			
+			_maxRecursionDepth = maxRecursionDepth;
+			_scriptTimeoutSeconds = scriptTimeoutSeconds;
 		}
 		
 		public override function writeData(output:ISWFOutput):void		
@@ -22,10 +28,10 @@ package org.flemit.tags
 			output.writeUI16(_scriptTimeoutSeconds);
 		}
 		
-		public function get maxRecursionDepth() : uint { return _maxRecursionDepth; }
-		public function set maxRecursionDepth(value : uint) : void { _maxRecursionDepth = value; }
+		public function get maxRecursionDepth() : int { return _maxRecursionDepth; }
+		public function set maxRecursionDepth(value : int) : void { _maxRecursionDepth = value; }
 		
-		public function get scriptTimeoutSeconds() : uint { return _scriptTimeoutSeconds; }
-		public function set scriptTimeoutSeconds(value : uint) : void { _scriptTimeoutSeconds = value; }
+		public function get scriptTimeoutSeconds() : int { return _scriptTimeoutSeconds; }
+		public function set scriptTimeoutSeconds(value : int) : void { _scriptTimeoutSeconds = value; }
 	}
 }
