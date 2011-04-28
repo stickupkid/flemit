@@ -6,15 +6,18 @@ package org.flemit.bytecode
 	
 	import flash.utils.Dictionary;
 	
-	
-	public class ByteCodeLayoutBuilder implements IByteCodeLayoutBuilder
+	public final class ByteCodeLayoutBuilder implements IByteCodeLayoutBuilder
 	{
-		private var _types : Array = new Array();
+		
+		private var _types : Array = [];
+		
 		private var _methods : Dictionary = new Dictionary();
 		
-		private var _ignoredPackages : Array = [
-			"flash.*", "mx.*", "fl.*", ":Object"
-			];
+		private var _ignoredPackages : Array = [	"flash.*", 
+													"mx.*", 
+													"fl.*", 
+													":Object"
+													];
 		
 		public function ByteCodeLayoutBuilder()
 		{
@@ -24,11 +27,6 @@ package org.flemit.bytecode
 		{
 			if (_types.indexOf(type) == -1)
 			{
-				/* if (type.isGeneric)
-				{
-					registerType(type.genericTypeDefinition);
-				} */
-				
 				if (type.baseType != type && type.baseType != null)
 				{
 					registerType(type.baseType);
@@ -54,7 +52,7 @@ package org.flemit.bytecode
 			
 			for each(var type : Type in this._types)
 			{
-				var dynamicClass : DynamicClass = type as DynamicClass;
+				const dynamicClass : DynamicClass = type as DynamicClass;
 				
 				if (isIgnored(type) || dynamicClass == null)
 				{
@@ -65,7 +63,7 @@ package org.flemit.bytecode
 				{
 					layout.registerClass(type);
 					
-					//if (dynamicClass != null)
+					if (null != dynamicClass)
 					{
 						for each (var methodBody : DynamicMethod in dynamicClass.methodBodies)
 						{
@@ -80,28 +78,17 @@ package org.flemit.bytecode
 		
 		private function isIgnored(type : Type) : Boolean
 		{
-			for each(var ignoredPackage : String in _ignoredPackages)
+			var index : int = _ignoredPackages.length;
+			while(--index > -1)
 			{
-				if (ClassUtility.isMatch(ignoredPackage, type.fullName))
+				const ignoredPackage : String = _ignoredPackages[index];
+				if(ClassUtility.isMatch(ignoredPackage, type.fullName))
 				{
 					return true;
 				}
 			}
 			
 			return false;
-		}
-		
-		private function pushUniqueValue(array : Array, value : IEqualityComparable) : uint
-		{
-			for (var i:uint =0; i<array.length; i++)
-			{
-				if (value.equals(array[i]))
-					return i;
-			}
-			
-			array.push(value);
-			
-			return array.length - 1;
 		}
 	}
 }

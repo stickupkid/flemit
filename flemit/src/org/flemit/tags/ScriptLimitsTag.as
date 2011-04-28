@@ -32,6 +32,9 @@ package org.flemit.tags
 		public function set maxRecursionDepth(value : int) : void { _maxRecursionDepth = value; }
 		
 		public function get scriptTimeoutSeconds() : int { return _scriptTimeoutSeconds; }
-		public function set scriptTimeoutSeconds(value : int) : void { _scriptTimeoutSeconds = value; }
+		public function set scriptTimeoutSeconds(value : int) : void 
+		{ 
+			_scriptTimeoutSeconds = value; 
+		}
 	}
 }

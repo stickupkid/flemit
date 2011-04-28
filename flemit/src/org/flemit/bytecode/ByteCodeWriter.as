@@ -122,7 +122,10 @@ package org.flemit.bytecode
 			_output.writeDouble(value);
 		}
 		
-		public function writeBytes(byteArray : ByteArray, offset : uint = 0, length : uint = 0) : void
+		public function writeBytes(	byteArray : ByteArray, 
+									offset : uint = 0, 
+									length : uint = 0
+									) : void
 		{
 			_output.writeBytes(byteArray, offset, length);
 		}

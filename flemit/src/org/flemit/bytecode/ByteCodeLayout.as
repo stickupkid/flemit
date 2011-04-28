@@ -13,27 +13,41 @@ package org.flemit.bytecode
 	import org.flemit.reflection.Type;
 	
 	
-	public class ByteCodeLayout implements IByteCodeLayout
+	public final class ByteCodeLayout implements IByteCodeLayout
 	{
+		private static var _instructionParamTypes : Dictionary = getInstructionParamTypes();
+		
 		private var _readOnly : Boolean	= false;
 		
 		private var _integers : Array;
+		
 		private var _uintegers : Array;
+		
 		private var _doubles : Array;
+		
 		private var _strings : Array;
+		
 		private var _namespaces : Array;
+		
 		private var _namespaceSets : Array;
+		
 		private var _multinames : Array;
+		
 		private var _methods : Array;
+		
 		private var _metadata : Array;
+		
 		private var _types : Array;
+		
 		private var _methodBodies : Array;
 		
 		private var _methodBodiesBuffer : ByteArray;
+		
 		private var _methodBodiesWriter : IByteCodeWriter;
 		
-		private var _majorVersion : uint = 46;
-		private var _minorVersion : uint = 16;
+		private var _majorVersion : int = 46;
+		
+		private var _minorVersion : int = 16;
 		
 		public function ByteCodeLayout()
 		{
@@ -42,13 +56,13 @@ package org.flemit.bytecode
 			_doubles = [0];
 			_strings = ['*'];
 			_namespaces = [];
-			_namespaceSets = new Array();
-			_multinames = new Array();
-			_methods = new Array();
-			_metadata = new Array();
+			_namespaceSets = [];
+			_multinames = [];
+			_methods = [];
+			_metadata = [];
 			
-			_types = new Array();
-			_methodBodies = new Array();
+			_types = [];
+			_methodBodies = [];
 			
 			_methodBodiesBuffer = new ByteArray();
 			_methodBodiesWriter = new ByteCodeWriter(_methodBodiesBuffer);
@@ -56,14 +70,21 @@ package org.flemit.bytecode
 			registerNamespaceSet(new NamespaceSet([Type.star.qname.ns]));
 			registerMultiname(Type.star.qname);
 		}
+				
+		private static function notSupportedInstructionHandler(instruction : Array) : void
+		{
+			var instructionName : String = Enum.getName(Instructions, instruction[0]);
+			
+			throw new IllegalOperationError("Operation (" + instructionName + ") not supported");
+		}
 		
 		public function write(output : IDataOutput) : void
 		{
   			_readOnly = true;
 			
-			//try
+			try
 			{
-				var writer : IByteCodeWriter = new ByteCodeWriter(output);
+				const writer : IByteCodeWriter = new ByteCodeWriter(output);
 				
 				// Version
 				writer.writeU16(_minorVersion);
@@ -79,384 +100,14 @@ package org.flemit.bytecode
 				
 				writeMethodBodies(writer);
 			}
-			//finally
+			catch(error : Error)
+			{
+				// Something went wrong.
+			}
+			finally
 			{
 				_readOnly = false;
 			}
-		}
-		
-		private function writeConstantPool(output : IByteCodeWriter) : void
-		{
-			writeArray(_integers, output, output.writeS32, 1);
-			writeArray(_uintegers, output, output.writeU32, 1);
-			writeArray(_doubles, output, output.writeD64, 1);
-			writeArray(_strings, output, output.writeString, 1);
-			
-			writeIndexedArray(_namespaces, output, function(ns : Array) : void
-			{
-				output.writeU8(ns[0]);
-				output.writeU30(ns[1]);
-			}, 1);
-			
-			writeIndexedArray(_namespaceSets, output, function(namespaceSet : Array) : void
-			{
-				output.writeU30(namespaceSet.length);
-				for each(var index : uint in namespaceSet)
-					output.writeU30(index);
-			}, 1);
-			
-			writeIndexedArray(_multinames, output, function(multiname : Array) : void
-			{
-				output.writeU8(multiname[0]);
-				
-				for (var i:uint=1; i<multiname.length; i++)
-					output.writeU30(multiname[i]);
-			}, 1);
-		}
-		
-		private function writeArray(array : Array, output : IByteCodeWriter, writeFunc : Function, startIndex : int = 0) : void
-		{
-			output.writeU30(array.length);
-			
-			for (var i:int = startIndex; i<array.length; i++)	
-			{
-				writeFunc(array[i]);
-			}
-		}
-		
-		private function writeIndexedArray(array : Array, output : IByteCodeWriter, writeFunc : Function, startIndex : int = 0) : void
-		{
-			output.writeU30(array.length);
-			
-			for (var i:int = startIndex; i<array.length; i++)	
-			{
-				writeFunc(array[i].Data);
-			}
-		}
-		
-		private function writeNamespace(ns : NamespaceInfo, output : IByteCodeWriter) : void 
-		{
-			output.writeU8(ns.kind);
-			output.writeU30(ns.name);
-		}
-		
-		private function writeNamespaceSet(namespaceSet : Array, output : IByteCodeWriter) : void 
-		{
-			output.writeU30(namespaceSet.length);
-			
-			for each(var index : uint in namespaceSet)
-			{
-				output.writeU30(index);
-			}
-		}
-		
-		private function writeMethods(output : IByteCodeWriter) : void
-		{
-			var param : ParameterInfo = null;
-			
-			output.writeU30(_methods.length);
-			
-			for each(var method : MethodInfo in _methods)
-			{
-				var params : Array = new Array().concat(method.parameters);
-				
-				var needsRest : Boolean = this.needsRest(method);
-				
-				if (needsRest)
-				{
-					params.pop();
-				}
-				
-				output.writeU30(params.length);
-				
-				output.writeU30(registerMultiname(method.returnType.multiname));
-				
-				var optionalArgsCount : uint = 0;
-				
-				var paramCount : int = params.length;
-				
-				for (var i:uint=0; i<paramCount; i++)
-				{
-					param = method.parameters[i];
-					
-					if (param.optional)
-					{
-						optionalArgsCount++;
-					}
-					
-					output.writeU30(registerMultiname(param.type.multiname));
-				}
-				
-				output.writeU30(registerString(method.fullName));
-				
-				// TODO: Only specify NEED_ARGUMENTS if the method needs it... ?
-				var flags : uint = MethodFlags.HAS_PARAM_NAMES
-				
-				if (needsRest)
-				{
-					flags |= MethodFlags.NEED_REST;
-					params.pop();
-				}
-				else
-				{
-					flags |= MethodFlags.NEED_ARGUMENTS;
-				}
-
-				if (optionalArgsCount > 0)
-					flags |= MethodFlags.HAS_OPTIONAL; 
-				
-				output.writeU8(flags);
-				
-				if (optionalArgsCount > 0)
-				{
-					output.writeU30(optionalArgsCount);
-					
-					for (var p:int=optionalArgsCount; p>0; p--)
-					{
-						// TODO: Determine optional value?
-						
-						output.writeU30(0);
-						output.writeU8(0x0C); // Undefined
-					}
-				}
-				
-				for each(param in params)
-				{
-					output.writeU30(registerString(param.name));
-				}
-			}
-		}
-		
-		private function needsRest(methodInfo : MethodInfo) : Boolean
-		{
-			for each(var param : ParameterInfo in methodInfo.parameters)
-			{
-				if (param.type == Type.rest)
-				{
-					return true;
-				}
-			}
-			
-			return false;
-		}
-		
-		private function writeMetadata(output : IByteCodeWriter) : void
-		{
-			output.writeU30(0);
-		}
-		
-		private function writeClasses(output : IByteCodeWriter) : void
-		{
-			output.writeU30(_types.length);
-			
-			var type : Type;
-			
-			var method : MethodInfo;
-			
-			for each(type in _types)
-			{
-				output.writeU30(registerMultiname(type.multiname));
-				
-				if (type.baseType == null || type.baseType.fullName == "Object")
-				{
-					// No base type - 4.3 Instance / super_name
-					output.writeU30(0);
-				}
-				else
-				{
-					output.writeU30(registerMultiname(type.baseType.multiname));
-				}
-				
-				var flags : uint = getClassFlags(type);
-				
-				var hasProtectedNs : Boolean = ((flags & ClassFlags.PROTECTED_NAMESPACE) != 0)
-				
-				output.writeU8(flags);
-				
-				if (hasProtectedNs)
-				{
-					output.writeU30(registerNamespace(type.typeNamespace));
-				}
-				 
-				var interfaces : Array = type.getInterfaces();
-				output.writeU30(interfaces.length);
-				
-				for each(var interfaceType : Type in interfaces)
-				{
-					output.writeU30(registerMultiname(interfaceType.multiNamespaceName));
-				}
-				
-				// iinit
-				output.writeU30(registerMethod(type.constructor));
-				
-				// trait count
-				output.writeU30(getTraitCount(type, false));
-				/* output.writeU30(
-					type.getMethods(false, true).length +
-					(2 * type.getProperties(false, true).length) +
-					type.getFields(false, true).length					
-				); */
-				
-				var attributes : int = 0;
-				
-				for each(method in type.getMethods(false, true))
-				{
-					output.writeU30(registerMultiname(method.qname));
-					
-					// TODO: Support override
-					
-					output.writeU8(TraitKind.METHOD | (getMethodTraitAttributes(method) << 4)); // kind
-					
-					output.writeU30(0); // disp_id (optimisation disabled)
-					output.writeU30(registerMethod(method));
-					
-					// Only include metadata count/data if METADATA attribute is present
-					//output.writeU30(0); // metadata count
-				}
-				
-				for each(var property : PropertyInfo in type.getProperties(false, true))
-				{
-					if (property.canRead)
-					{
-						// Getter
-						output.writeU30(registerMultiname(property.qname));
-						output.writeU8(TraitKind.GETTER | (getMethodTraitAttributes(property.getMethod) << 4)); // kind
-						output.writeU30(0); // disp_id (optimisation disabled)
-						output.writeU30(registerMethod(property.getMethod));
-						//output.writeU30(0); // metadata count
-					}
-					
-					if (property.canWrite)
-					{
-						// Setter
-						output.writeU30(registerMultiname(property.qname));
-						output.writeU8(TraitKind.SETTER | (getMethodTraitAttributes(property.setMethod) << 4)); // kind
-						output.writeU30(0); // disp_id (optimisation disabled)
-						output.writeU30(registerMethod(property.setMethod));
-						//output.writeU30(0); // metadata count
-					}
-				}
-				
-				for each(var field : FieldInfo in type.getFields(false, true))
-				{
-					// Getter 
-					output.writeU30(registerMultiname(field.qname));
-					output.writeU8(TraitKind.SLOT); // kind
-					output.writeU30(0); // slot_id (avm selected)
-					output.writeU30(registerMultiname(field.type.multiname)); // type_name
-					output.writeU30(0); // no initial value
-					// vkind skipped
-				}
-			}
-			
-			for each(type in _types)
-			{
-				output.writeU30(registerMethod(type.staticInitialiser));
-				
-				var staticTraitCount : int = type.getMethods(true, false).length;
-				
-				// TODO: Support static properties/fields
-				output.writeU30(staticTraitCount);
-				
-				for each(method in type.getMethods(true, false))
-				{
-					output.writeU30(registerMultiname(method.qname));
-					
-					// TODO: Support override
-					
-					output.writeU8(TraitKind.METHOD | (getMethodTraitAttributes(method) << 4)); // kind
-					
-					output.writeU30(0); // disp_id (optimisation disabled)
-					output.writeU30(registerMethod(method));
-					
-					// Only include metadata count/data if METADATA attribute is present
-					//output.writeU30(0); // metadata count
-				}
-			}
-			
-			// Scripts
-			output.writeU30(_types.length);
-			
-			for each(type in _types)
-			{
-				output.writeU30(registerMethod(type.scriptInitialiser));
-				output.writeU30(1); // trait_count
-				
-				output.writeU30(registerMultiname(type.qname));
-				output.writeU8(TraitKind.CLASS);
-				output.writeU30(0); // slot_id, avm assigned
-				output.writeU30(registerClass(type));
-			}
-		}
-		
-		private function getClassFlags(type : Type) : uint
-		{
-			var flags : uint = 0;
-			
-			if (type.typeNamespace.kind == NamespaceKind.PROTECTED_NAMESPACE)
-			{
-				flags |= ClassFlags.PROTECTED_NAMESPACE; 
-			}
-			
-			if (type.isInterface)
-			{
-				flags |= ClassFlags.INTERFACE;
-			}
-			
-			if (type.isFinal)
-			{
-				flags |= ClassFlags.FINAL;
-			}
-			
-			if (!type.isDynamic)
-			{
-				flags |= ClassFlags.SEALED;
-			}
-			
-			return flags;
-		}
-		
-		private function getTraitCount(type : Type, staticMembers : Boolean) : uint 
-		{
-			var traitCount : uint = 0;
-			
-			traitCount += type.getFields(staticMembers, !staticMembers).length;
-			traitCount += type.getMethods(staticMembers, !staticMembers).length;
-			
-			for each(var property : PropertyInfo in type.getProperties(staticMembers, !staticMembers))
-			{
-				if (property.canRead)
-				{
-					traitCount++;
-				}
-				
-				if (property.canWrite)
-				{
-					traitCount++;
-				}
-			}
-			
-			return traitCount;
-		}
-		
-		private function getMethodTraitAttributes(method : MethodInfo) : int
-		{
-			var attributes : int = 0;
-			
-			if (method.isOverride)
-			{
-				attributes |= TraitAttribute.OVERRIDE;
-			}
-			
-			return attributes;
-		}
-		
-		private function writeMethodBodies(output : IByteCodeWriter) : void
-		{
-			output.writeU30(_methodBodies.length);
-			
-			_methodBodiesBuffer.position = 0;
-			output.writeBytes(_methodBodiesBuffer);
 		}
 		
 		public function registerInteger(value : int) : uint
@@ -471,26 +122,21 @@ package org.flemit.bytecode
 		
 		public function registerDouble(value : Number) : uint
 		{
-			return assertArrayIndex(_doubles, value)
+			return assertArrayIndex(_doubles, value);
 		}
 		
 		public function registerString(value : String) : uint
 		{
-			return assertArrayIndex(_strings, value)
+			return assertArrayIndex(_strings, value);
 		}
 		
 		public function registerClass(value : Type) : uint
 		{
-			var index : uint = assertArrayIndex(_types, value);
+			const index : uint = assertArrayIndex(_types, value);
 			
 			registerTypeMultiname(value);
 			registerMultiname(value.multiNamespaceName);
 			registerNamespace(value.typeNamespace);
-			
-			/* if (value.qname.ns.kind != NamespaceKind.PACKAGE_NAMESPACE)
-			{
-				registerNamespace(_protectedNamespace);
-			} */
 			
 			registerMethod(value.scriptInitialiser);
 			registerMethod(value.staticInitialiser);
@@ -541,16 +187,6 @@ package org.flemit.bytecode
 			return assertArrayIndex(_methods, value);
 		}
 		
-		private function registerTypeMultiname(type : Type) : void
-		{
-			if (type.isGeneric)
-			{
-				registerMultiname(type.genericTypeDefinition.multiname);
-			}
-			
-			registerMultiname(type.multiname);
-		}
-		
 		public function registerMethodBody(method : MethodInfo, value : DynamicMethod) : uint
 		{
 			var index : int = _methodBodies.indexOf(value);
@@ -568,8 +204,8 @@ package org.flemit.bytecode
 				
 				var instruction : Array = null;
 				
-				var instructionBuffer : ByteArray = new ByteArray();
-				var instructionWriter : IByteCodeWriter = new ByteCodeWriter(instructionBuffer);
+				const instructionBuffer : ByteArray = new ByteArray();
+				const instructionWriter : IByteCodeWriter = new ByteCodeWriter(instructionBuffer);
 				
 				for each(instruction in value.instructionSet)
 				{
@@ -585,7 +221,8 @@ package org.flemit.bytecode
 					{
 						var paramTypes : Array = paramTypesObj as Array;
 					
-						for (var i:uint=0; i<paramTypes.length; i++)
+						const total : int = paramTypes.length;
+						for (var i : int = 0; i<total; i++)
 						{
 							var paramType : uint = paramTypes[i];
 							var paramVal : Object = instruction[i + 1];
@@ -623,7 +260,8 @@ package org.flemit.bytecode
 									instructionWriter.writeS24(paramVal as int);
 									break;
 								default:
-									throw new IllegalOperationError("Unsupported argument type: " + paramType);
+									throw new IllegalOperationError("Unsupported argument type: " 
+																					+ paramType);
 							}
 						}
 					}
@@ -682,9 +320,11 @@ package org.flemit.bytecode
 					
 					case MultinameKind.GENERIC:
 						var gen : GenericName = value as GenericName;
-						var arr : Array = [value.kind, registerMultiname(gen.typeDefinition), gen.genericParameters.length];
-						//arr = arr.concat(gen.genericParameters);
-						
+						var arr : Array = [	value.kind, 
+											registerMultiname(gen.typeDefinition), 
+											gen.genericParameters.length
+											];
+											
 						for each(var mn : Multiname in gen.genericParameters)
 						{
 							arr.push(registerMultiname(mn));
@@ -724,20 +364,342 @@ package org.flemit.bytecode
 			});
 		}
 		
-		private function assertEqArrayIndex(array : Array, value : IEqualityComparable, dataCallback : Function) : uint
+		private function registerTypeMultiname(type : Type) : void
 		{
-			for (var i:uint =0; i<array.length; i++)
+			if (type.isGeneric)
 			{
-				if (value.equals(array[i].Object))
+				registerMultiname(type.genericTypeDefinition.multiname);
+			}
+			
+			registerMultiname(type.multiname);
+		}
+		
+		private function writeConstantPool(output : IByteCodeWriter) : void
+		{
+			writeArray(_integers, output, output.writeS32, 1);
+			writeArray(_uintegers, output, output.writeU32, 1);
+			writeArray(_doubles, output, output.writeD64, 1);
+			writeArray(_strings, output, output.writeString, 1);
+			
+			writeIndexedArray(_namespaces, output, function(ns : Array) : void
+			{
+				output.writeU8(ns[0]);
+				output.writeU30(ns[1]);
+			}, 1);
+			
+			writeIndexedArray(_namespaceSets, output, function(namespaceSet : Array) : void
+			{
+				output.writeU30(namespaceSet.length);
+				for each(var index : uint in namespaceSet)
+					output.writeU30(index);
+			}, 1);
+			
+			writeIndexedArray(_multinames, output, function(multiname : Array) : void
+			{
+				output.writeU8(multiname[0]);
+				
+				const total : int = multiname.length;
+				for (var i : int = 1; i < total; i++)
+					output.writeU30(multiname[i]);
+			}, 1);
+		}
+		
+		private function writeArray(	array : Array, 
+										output : IByteCodeWriter, 
+										writeFunc : Function, 
+										startIndex : int = 0
+										) : void
+		{
+			output.writeU30(array.length);
+			
+			const total : int = array.length;
+			for (var i : int = startIndex; i<total; i++)	
+			{
+				writeFunc(array[i]);
+			}
+		}
+		
+		private function writeIndexedArray(	array : Array, 
+											output : IByteCodeWriter, 
+											writeFunc : Function, 
+											startIndex : int = 0
+											) : void
+		{
+			output.writeU30(array.length);
+			
+			const total : int = array.length;
+			for (var i : int = startIndex; i<total; i++)	
+			{
+				writeFunc(array[i]["Data"]);
+			}
+		}
+				
+		private function writeMethods(output : IByteCodeWriter) : void
+		{
+			var param : ParameterInfo = null;
+			
+			output.writeU30(_methods.length);
+			
+			for each(var method : MethodInfo in _methods)
+			{
+				const params : Array = [].concat(method.parameters);
+				const needsRest : Boolean = needsRest(method);
+				
+				if (needsRest) params.pop();
+				
+				output.writeU30(params.length);
+				output.writeU30(registerMultiname(method.returnType.multiname));
+				
+				var optionalArgsCount : int = 0;
+				
+				const paramCount : int = params.length;
+				for (var i : int = 0; i<paramCount; i++)
+				{
+					param = method.parameters[i];
+					
+					if (param.optional) optionalArgsCount++;
+					
+					output.writeU30(registerMultiname(param.type.multiname));
+				}
+				
+				output.writeU30(registerString(method.fullName));
+				
+				// TODO: Only specify NEED_ARGUMENTS if the method needs it... ?
+				var flags : int = MethodFlags.HAS_PARAM_NAMES;
+				
+				if (needsRest)
+				{
+					flags |= MethodFlags.NEED_REST;
+					params.pop();
+				}
+				else
+				{
+					flags |= MethodFlags.NEED_ARGUMENTS;
+				}
+
+				if (optionalArgsCount > 0) flags |= MethodFlags.HAS_OPTIONAL; 
+				
+				output.writeU8(flags);
+				
+				if (optionalArgsCount > 0)
+				{
+					output.writeU30(optionalArgsCount);
+					
+					for (var p:int=optionalArgsCount; p>0; p--)
+					{
+						// TODO: Determine optional value?
+						
+						output.writeU30(0);
+						output.writeU8(0x0C); // Undefined
+					}
+				}
+				
+				for each(param in params)
+				{
+					output.writeU30(registerString(param.name));
+				}
+			}
+		}
+		
+		private function needsRest(methodInfo : MethodInfo) : Boolean
+		{
+			for each(var param : ParameterInfo in methodInfo.parameters)
+			{
+				if (param.type == Type.rest)
+				{
+					return true;
+				}
+			}
+			
+			return false;
+		}
+		
+		private function writeMetadata(output : IByteCodeWriter) : void
+		{
+			output.writeU30(0);
+		}
+		
+		private function writeClasses(output : IByteCodeWriter) : void
+		{
+			output.writeU30(_types.length);
+			
+			var type : Type;
+			var method : MethodInfo;
+			
+			for each(type in _types)
+			{
+				output.writeU30(registerMultiname(type.multiname));
+				
+				// No base type - 4.3 Instance / super_name
+				if (type.baseType == null || type.baseType.fullName == "Object")
+					output.writeU30(0);
+				else
+					output.writeU30(registerMultiname(type.baseType.multiname));
+				
+				const flags : int = getClassFlags(type);
+				const hasProtectedNs : Boolean = ((flags & ClassFlags.PROTECTED_NAMESPACE) != 0);
+				
+				output.writeU8(flags);
+				
+				if (hasProtectedNs)
+					output.writeU30(registerNamespace(type.typeNamespace));
+				 
+				const interfaces : Array = type.getInterfaces();
+				output.writeU30(interfaces.length);
+				
+				for each(var interfaceType : Type in interfaces)
+				{
+					output.writeU30(registerMultiname(interfaceType.multiNamespaceName));
+				}
+				
+				// iinit
+				output.writeU30(registerMethod(type.constructor));
+				
+				// trait count
+				output.writeU30(getTraitCount(type, false));
+				
+				for each(method in type.getMethods(false, true))
+				{
+					output.writeU30(registerMultiname(method.qname));
+					output.writeU8(TraitKind.METHOD | (getMethodTraitAttributes(method) << 4));
+					output.writeU30(0);
+					output.writeU30(registerMethod(method));
+				}
+				
+				for each(var property : PropertyInfo in type.getProperties(false, true))
+				{
+					if (property.canRead)
+					{
+						// Getter
+						output.writeU30(registerMultiname(property.qname));
+						output.writeU8(TraitKind.GETTER 
+											| (getMethodTraitAttributes(property.getMethod) << 4));
+						output.writeU30(0);
+						output.writeU30(registerMethod(property.getMethod));
+					}
+					
+					if (property.canWrite)
+					{
+						// Setter
+						output.writeU30(registerMultiname(property.qname));
+						output.writeU8(TraitKind.SETTER 
+											| (getMethodTraitAttributes(property.setMethod) << 4));
+						output.writeU30(0);
+						output.writeU30(registerMethod(property.setMethod));
+					}
+				}
+				
+				for each(var field : FieldInfo in type.getFields(false, true))
+				{
+					// Getter 
+					output.writeU30(registerMultiname(field.qname));
+					output.writeU8(TraitKind.SLOT);
+					output.writeU30(0);
+					output.writeU30(registerMultiname(field.type.multiname));
+					output.writeU30(0);
+				}
+			}
+			
+			for each(type in _types)
+			{
+				output.writeU30(registerMethod(type.staticInitialiser));
+				
+				const staticTraitCount : int = type.getMethods(true, false).length;
+				
+				output.writeU30(staticTraitCount);
+				
+				for each(method in type.getMethods(true, false))
+				{
+					output.writeU30(registerMultiname(method.qname));			
+					output.writeU8(TraitKind.METHOD | (getMethodTraitAttributes(method) << 4)); // kind
+					output.writeU30(0); // disp_id (optimisation disabled)
+					output.writeU30(registerMethod(method));
+				}
+			}
+			
+			// Scripts
+			output.writeU30(_types.length);
+			
+			for each(type in _types)
+			{
+				output.writeU30(registerMethod(type.scriptInitialiser));
+				output.writeU30(1); // trait_count
+				
+				output.writeU30(registerMultiname(type.qname));
+				output.writeU8(TraitKind.CLASS);
+				output.writeU30(0); // slot_id, avm assigned
+				output.writeU30(registerClass(type));
+			}
+		}
+		
+		private function getClassFlags(type : Type) : int
+		{
+			var flags : int = 0;
+			
+			if (type.typeNamespace.kind == NamespaceKind.PROTECTED_NAMESPACE)
+				flags |= ClassFlags.PROTECTED_NAMESPACE;
+			if (type.isInterface) 
+				flags |= ClassFlags.INTERFACE;
+			if (type.isFinal) 
+				flags |= ClassFlags.FINAL;
+			if (!type.isDynamic) 
+				flags |= ClassFlags.SEALED;
+			
+			return flags;
+		}
+		
+		private function getTraitCount(type : Type, staticMembers : Boolean) : uint 
+		{
+			var traitCount : int = 0;
+			
+			traitCount += type.getFields(staticMembers, !staticMembers).length;
+			traitCount += type.getMethods(staticMembers, !staticMembers).length;
+			
+			for each(var property : PropertyInfo in type.getProperties(staticMembers, !staticMembers))
+			{
+				if (property.canRead)
+					traitCount++;
+				
+				if (property.canWrite)
+					traitCount++;
+			}
+			
+			return traitCount;
+		}
+		
+		private function getMethodTraitAttributes(method : MethodInfo) : int
+		{
+			var attributes : int = 0;
+			if (method.isOverride)
+				attributes |= TraitAttribute.OVERRIDE;
+			return attributes;
+		}
+		
+		private function writeMethodBodies(output : IByteCodeWriter) : void
+		{
+			output.writeU30(_methodBodies.length);
+			
+			_methodBodiesBuffer.position = 0;
+			output.writeBytes(_methodBodiesBuffer);
+		}
+		
+		private function assertEqArrayIndex(	array : Array, 
+												value : IEqualityComparable, 
+												dataCallback : Function
+												) : int
+		{
+			const total : int = array.length;
+			for (var i : int =0; i<total; i++)
+			{
+				if (value.equals(array[i]["Object"]))
 					return i;
 			}
 			
 			if (_readOnly)
-			{
-				throw new IllegalOperationError("Cannot register a new item when the instance is readonly");
-			}
+				throw new IllegalOperationError("Cannot register a new item when the " + 
+																			"instance is readonly");
 			
-			var indexedObj : IndexedObject = new IndexedObject();
+			const indexedObj : IndexedObject = new IndexedObject();
 			indexedObj.Object = value;
 			indexedObj.Data = dataCallback();
 			
@@ -747,120 +709,105 @@ package org.flemit.bytecode
 		private function assertArrayIndex(array : Array, value : Object) : uint
 		{
 			var index : int = array.indexOf(value);
-			
 			if (index == -1)
 			{
 				if (_readOnly)
-				{
-					throw new IllegalOperationError("Cannot register a new item when the instance is readonly");
-				}
-				
+					throw new IllegalOperationError("Cannot register a new item when the " + 
+																			"instance is readonly");
 				index = array.push(value) - 1;
 			}
-			
 			return index;
 		}
-		
-		private static function notSupportedInstructionHandler(instruction : Array, writer : IByteCodeWriter) : void
-		{
-			var instructionName : String = Enum.getName(Instructions, instruction[0]);
-			
-			throw new IllegalOperationError("Operation (" + instructionName + ") not supported");
-		}
-		
-		private static var _instructionParamTypes : Dictionary = getInstructionParamTypes();
-		
+				
 		private static function getInstructionParamTypes() : Dictionary
 		{
-			var dict : Dictionary = new Dictionary();
+			const dict : Dictionary = new Dictionary();
 			
-			InstructionArgumentType.Class;
+			const multiname : int = InstructionArgumentType.Multiname;
+			const method : int = InstructionArgumentType.Method;
+			const double : int = InstructionArgumentType.Double;
+			const integer : int = InstructionArgumentType.Integer;
+			const uInteger : int = InstructionArgumentType.UInteger;
+			const u8 : int = InstructionArgumentType.U8;
+			const s24 : int = InstructionArgumentType.S24;
+			const u30 : int = InstructionArgumentType.U30;
 			
-			var multiname : uint = InstructionArgumentType.Multiname;
-			
-			with(Instructions)
-			{
-				with(InstructionArgumentType)
-				{
-					dict[AsType] = [multiname];
-					dict[Call] = [U30];
-					dict[CallMethod] = [Method, U30];
-					dict[CallProperty] = [multiname, U30];
-					dict[CallPropLex] = [multiname, U30];
-					dict[CallPropVoid] = [multiname, U30];
-					dict[CallStatic] = [Method, U30];
-					dict[CallSuper] = [multiname, U30];
-					dict[CallSuperVoid] = [multiname, U30];
-					dict[Coerce] = [multiname];
-					dict[Construct] = [U30];
-					dict[ConstructProp] = [multiname, U30];
-					dict[ConstructSuper] = [U30];
-					dict[Debug] = [U8, String, U8, U30];
-					dict[DebugFile] = [String];
-					dict[DebugLine] = [U30];
-					dict[DecrementLocal] = [U30];
-					dict[DecrementLocalInteger] = [U30];
-					dict[DeleteProperty] = [multiname];
-					dict[DefaultXMLNamespace] = [String];
-					dict[FindProperty] = [multiname];
-					dict[FindPropertyStrict] = [multiname];
-					dict[GetDescendants] = [multiname];
-					dict[GetGlobalSlot] = [U30];
-					dict[GetLex] = [multiname];
-					dict[GetLocal] = [U30];
-					dict[GetProperty] = [multiname];
-					dict[GetScopeObject] = [U8];
-					dict[GetSlot] = [U30];
-					dict[GetSuper] = [multiname];
-					dict[HasNext2] = [U30, U30]; // ?
-					dict[IfEquals] = [S24];
-					dict[IfFalse] = [S24];
-					dict[IfGreaterThanOrEquals] = [S24];
-					dict[IfGreaterThan] = [S24];
-					dict[IfLessThanOrEquals] = [S24];
-					dict[IfLessThan] = [S24];
-					dict[IfNotGreaterThanOrEquals] = [S24];
-					dict[IfNotGreaterThan] = [S24];
-					dict[IfNotLessThanOrEquals] = [S24];
-					dict[IfNotLessThan] = [S24];
-					dict[IfNotEquals] = [S24];
-					dict[IfStrictEquals] = [S24];
-					dict[IfStrictNotEquals] = [S24];
-					dict[IfTrue] = [S24];
-					dict[IncrementLocal] = [U30];
-					dict[IncrementLocalInteger] = [U30];
-					dict[InitProperty] = [multiname];
-					dict[IsType] = [multiname];
-					dict[Jump] = [S24];
-					dict[Kill] = [U30];
-					dict[LookUpSwitch] = notSupportedInstructionHandler;
-					dict[NewArray] = [U30];
-					dict[NewCatch] = notSupportedInstructionHandler;
-					dict[NewClass] = [Class];
-					dict[NewFunction] = [MethodInfo];
-					dict[NewObject] = [U30];
-					dict[PushByte] = [U8];
-					dict[PushDouble] = [Double];
-					dict[PushInt] = [Integer];
-					dict[PushNamespace] = [Namespace];
-					dict[PushShort] = [U30];
-					dict[PushString] = [String];
-					dict[PushUInt] = [UInteger];
-					dict[SetLocal] = [U30];
-					dict[SetGlobalSlot] = [U30];
-					dict[SetProperty] = [multiname];
-					dict[SetSlot] = [U30];
-					dict[SetSuper] = [multiname];
-				} 
-			}
+			dict[Instructions.AsType] = [multiname];
+			dict[Instructions.Call] = [u30];
+			dict[Instructions.CallMethod] = [method, u30];
+			dict[Instructions.CallProperty] = [multiname, u30];
+			dict[Instructions.CallPropLex] = [multiname, u30];
+			dict[Instructions.CallPropVoid] = [multiname, u30];
+			dict[Instructions.CallStatic] = [method, u30];
+			dict[Instructions.CallSuper] = [multiname, u30];
+			dict[Instructions.CallSuperVoid] = [multiname, u30];
+			dict[Instructions.Coerce] = [multiname];
+			dict[Instructions.Construct] = [u30];
+			dict[Instructions.ConstructProp] = [multiname, u30];
+			dict[Instructions.ConstructSuper] = [u30];
+			dict[Instructions.Debug] = [u8, String, u8, u30];
+			dict[Instructions.DebugFile] = [String];
+			dict[Instructions.DebugLine] = [u30];
+			dict[Instructions.DecrementLocal] = [u30];
+			dict[Instructions.DecrementLocalInteger] = [u30];
+			dict[Instructions.DeleteProperty] = [multiname];
+			dict[Instructions.DefaultXMLNamespace] = [String];
+			dict[Instructions.FindProperty] = [multiname];
+			dict[Instructions.FindPropertyStrict] = [multiname];
+			dict[Instructions.GetDescendants] = [multiname];
+			dict[Instructions.GetGlobalSlot] = [u30];
+			dict[Instructions.GetLex] = [multiname];
+			dict[Instructions.GetLocal] = [u30];
+			dict[Instructions.GetProperty] = [multiname];
+			dict[Instructions.GetScopeObject] = [u8];
+			dict[Instructions.GetSlot] = [u30];
+			dict[Instructions.GetSuper] = [multiname];
+			dict[Instructions.HasNext2] = [u30, u30]; // ?
+			dict[Instructions.IfEquals] = [s24];
+			dict[Instructions.IfFalse] = [s24];
+			dict[Instructions.IfGreaterThanOrEquals] = [s24];
+			dict[Instructions.IfGreaterThan] = [s24];
+			dict[Instructions.IfLessThanOrEquals] = [s24];
+			dict[Instructions.IfLessThan] = [s24];
+			dict[Instructions.IfNotGreaterThanOrEquals] = [s24];
+			dict[Instructions.IfNotGreaterThan] = [s24];
+			dict[Instructions.IfNotLessThanOrEquals] = [s24];
+			dict[Instructions.IfNotLessThan] = [s24];
+			dict[Instructions.IfNotEquals] = [s24];
+			dict[Instructions.IfStrictEquals] = [s24];
+			dict[Instructions.IfStrictNotEquals] = [s24];
+			dict[Instructions.IfTrue] = [s24];
+			dict[Instructions.IncrementLocal] = [u30];
+			dict[Instructions.IncrementLocalInteger] = [u30];
+			dict[Instructions.InitProperty] = [multiname];
+			dict[Instructions.IsType] = [multiname];
+			dict[Instructions.Jump] = [s24];
+			dict[Instructions.Kill] = [u30];
+			dict[Instructions.LookUpSwitch] = notSupportedInstructionHandler;
+			dict[Instructions.NewArray] = [u30];
+			dict[Instructions.NewCatch] = notSupportedInstructionHandler;
+			dict[Instructions.NewClass] = [Class];
+			dict[Instructions.NewFunction] = [MethodInfo];
+			dict[Instructions.NewObject] = [u30];
+			dict[Instructions.PushByte] = [u8];
+			dict[Instructions.PushDouble] = [double];
+			dict[Instructions.PushInt] = [integer];
+			dict[Instructions.PushNamespace] = [Namespace];
+			dict[Instructions.PushShort] = [u30];
+			dict[Instructions.PushString] = [String];
+			dict[Instructions.PushUInt] = [uInteger];
+			dict[Instructions.SetLocal] = [u30];
+			dict[Instructions.SetGlobalSlot] = [u30];
+			dict[Instructions.SetProperty] = [multiname];
+			dict[Instructions.SetSlot] = [u30];
+			dict[Instructions.SetSuper] = [multiname];
 			
 			return dict;
 		}
 	}
 }
-	import org.flemit.bytecode.BCNamespace;
-	import org.flemit.bytecode.IEqualityComparable;
-	
+
+import org.flemit.bytecode.IEqualityComparable;
 
 class IndexedObject
 {

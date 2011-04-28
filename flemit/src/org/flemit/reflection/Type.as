@@ -117,7 +117,8 @@ package org.flemit.reflection
 													);
 		}
 
-		public static function getTypeByName(name : String, applicationDomain : ApplicationDomain = null) : Type
+		public static function getTypeByName(	name : String, 
+												applicationDomain : ApplicationDomain = null) : Type
 		{
 			applicationDomain = applicationDomain || ApplicationDomain.currentDomain;
 
@@ -235,39 +236,100 @@ package org.flemit.reflection
 			return false;
 		}
 		
-		public function getProperties(includeStatic : Boolean = true, includeInstance : Boolean = true) : Array
+		public function getProperties(	includeStatic : Boolean = true, 
+										includeInstance : Boolean = true
+										) : Array
 		{
-			return ([]).concat(_properties).filter(function(member : MemberInfo, i : int, arr : Array) : Boolean
+			const result : Array = [];
+			const total : int = _properties.length;
+			for(var i : int = 0; i<total; i++)
 			{
-				return (member.isStatic) ? includeStatic : includeInstance;
-			});
+				const member : MemberInfo = _properties[i];
+				if(member.isStatic)
+				{
+					if(includeStatic) result[result.length] = member;
+				}
+				else
+				{
+					if(includeInstance)	result[result.length] = member;
+				}
+			}
+			
+			return result;
 		}
 		
-		public function getMethods(includeStatic : Boolean = true, includeInstance : Boolean = true) : Array
+		public function getMethods(	includeStatic : Boolean = true, 
+									includeInstance : Boolean = true
+									) : Array
 		{
-			return ([]).concat(_methods).filter(function(member : MemberInfo, i : int, arr : Array) : Boolean
+			const result : Array = [];
+			const total : int = _methods.length;
+			for(var i : int = 0; i<total; i++)
 			{
-				return (member.isStatic) ? includeStatic : includeInstance;
-			});
+				const member : MemberInfo = _methods[i];
+				if(member.isStatic)
+				{
+					if(includeStatic) result[result.length] = member;
+				}
+				else
+				{
+					if(includeInstance)	result[result.length] = member;
+				}
+			}
+			
+			return result;
 		}
 		
-		public function getFields(includeStatic : Boolean = true, includeInstance : Boolean = true) : Array
+		public function getFields(	includeStatic : Boolean = true, 
+									includeInstance : Boolean = true
+									) : Array
 		{
-			return ([]).concat(_fields).filter(function(member : MemberInfo, i : int, arr : Array) : Boolean
+			const result : Array = [];
+			const total : int = _fields.length;
+			for(var i : int = 0; i<total; i++)
 			{
-				return (member.isStatic) ? includeStatic : includeInstance;
-			});
+				const member : MemberInfo = _fields[i];
+				if(member.isStatic)
+				{
+					if(includeStatic) result[result.length] = member;
+				}
+				else
+				{
+					if(includeInstance)	result[result.length] = member;
+				}
+			}
+			
+			return result;
 		}
 		
-		public function getMembers(includeStatic : Boolean = true, includeInstance : Boolean = true) : Array
+		public function getMembers(	includeStatic : Boolean = true, 
+									includeInstance : Boolean = true
+									) : Array
 		{
-			return _methods.concat(_properties).concat(_fields).filter(function(member : MemberInfo, i : int, arr : Array) : Boolean
+			const members : Array = _methods.concat(_properties).concat(_fields);
+			
+			const result : Array = [];
+			const total : int = members.length;
+			for(var i : int = 0; i<total; i++)
 			{
-				return (member.isStatic) ? includeStatic : includeInstance;
-			});
+				const member : MemberInfo = members[i];
+				if(member.isStatic)
+				{
+					if(includeStatic) result[result.length] = member;
+				}
+				else
+				{
+					if(includeInstance)	result[result.length] = member;
+				}
+			}
+			
+			return result;
 		}
 		
-		public function getProperty(name : String, ns : String = null, trySuper : Boolean = false) : PropertyInfo
+		public function getProperty(	name : String, 
+										ns : String = null, 
+										trySuper : Boolean = false
+										) : PropertyInfo
 		{
 			const property : PropertyInfo = findMember(_properties, name, ns) as PropertyInfo;
 			if (property) return property;
@@ -275,7 +337,10 @@ package org.flemit.reflection
 			return trySuper ? baseType.getProperty(name, ns, trySuper) : property;
 		}
 
-		public function getMethod(name : String, ns : String = null, trySuper : Boolean = false) : MethodInfo
+		public function getMethod(	name : String, 
+									ns : String = null, 
+									trySuper : Boolean = false
+									) : MethodInfo
 		{
 			const method : MethodInfo = findMember(_methods, name, ns) as MethodInfo;
 			if (method)	return method;
@@ -283,7 +348,10 @@ package org.flemit.reflection
 			return trySuper ? baseType.getMethod(name, ns, trySuper) : method;
 		}
 		
-		public function getField(name : String, ns : String, trySuper : Boolean = false) : FieldInfo
+		public function getField(	name : String, 
+									ns : String, 
+									trySuper : Boolean = false
+									) : FieldInfo
 		{
 			const field : FieldInfo = findMember(_fields, name, ns) as FieldInfo;
 			if (field) return field;
@@ -356,7 +424,9 @@ package org.flemit.reflection
 			_genericParameterCount = value;
 		}
 
-		internal function setGenericParameters(parameters : Array, genericTypeDefinition : Type) : void
+		internal function setGenericParameters(	parameters : Array, 
+												genericTypeDefinition : Type
+												) : void
 		{
 			_genericParameters = parameters;
 			_genericTypeDefinition = genericTypeDefinition;
@@ -422,7 +492,10 @@ package org.flemit.reflection
 
 		public function get multiname() : Multiname { return _multiname; }
 
-		public function get multiNamespaceName() : MultipleNamespaceName { return _multiNamespaceName; }
+		public function get multiNamespaceName() : MultipleNamespaceName 
+		{ 
+			return _multiNamespaceName; 
+		}
 
 		public function get isDynamic() : Boolean { return _isDynamic; }
 

@@ -22,7 +22,7 @@ package org.flemit.bytecode
 		
 		public function addMethodBody(method : MethodInfo, methodBody : DynamicMethod) : void
 		{
-			this.methodBodies[method] = methodBody;
+			methodBodies[method] = methodBody;
 		}
 		
 		public function addMethod(method : MethodInfo) : void

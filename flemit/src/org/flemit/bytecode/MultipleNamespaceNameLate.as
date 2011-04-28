@@ -6,7 +6,7 @@ package org.flemit.bytecode
 		private var _namespaceSet : NamespaceSet;
 		
 		public function MultipleNamespaceNameLate(	namespaceSet : NamespaceSet, 
-													kind : uint = MultinameKind.MULTINAME_LATE
+													kind : int = MultinameKind.MULTINAME_LATE
 													)
 		{
 			super(kind);

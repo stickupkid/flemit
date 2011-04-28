@@ -9,7 +9,7 @@ package org.flemit.bytecode
 
 		public function MultipleNamespaceName(	name : String, 
 												namespaceSet : NamespaceSet, 
-												kind : uint = MultinameKind.MULTINAME
+												kind : int = MultinameKind.MULTINAME
 												)
 		{
 			super(kind);

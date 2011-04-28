@@ -8,7 +8,7 @@ package org.flemit.reflection
 	import org.flemit.bytecode.*;
 	
 	
-	public class DescribeTypeTypeProvider implements ITypeProvider
+	public final class DescribeTypeTypeProvider implements ITypeProvider
 	{
 		private var _typeCache : Dictionary = new Dictionary(true);
 		
@@ -28,11 +28,8 @@ package org.flemit.reflection
 				}
 				
 				const typeXml : XML = DescribeTypeUtil.describe(cls);
-				
 				const typeName : String = typeXml.@name.toString();
-				
 				const genericParams : Array = getGenericParameters(typeName);
-				
 				const typeDefinition : Type = genericParams.length > 0
 												? getGenericTypeDefinition(typeName)
 												: null;
@@ -44,7 +41,6 @@ package org.flemit.reflection
 				}
 				
 				const qname : QualifiedName = getQualifiedName(typeName);
-				
 				const multiname : Multiname = typeDefinition != null
 												? getGenericName(typeDefinition, genericParams)
 												: qname;
@@ -55,7 +51,6 @@ package org.flemit.reflection
 				setClassFlags(type, typeXml);
 				
 				type.setBaseType(getBaseType(type, typeXml));
-				
 				type.setInterfaces(getInterfaces(typeXml));
 				
 				if (!type.isInterface && typeXml.factory.constructor.length() != 0)
@@ -73,16 +68,24 @@ package org.flemit.reflection
 			return (namespaceName.indexOf(".as$") > -1);
 		}
 		
-		private function getGenericName(genericTypeDefinition : Type, genericParams : Array) : GenericName 
+		private function getGenericName(	genericTypeDefinition : Type, 
+											genericParams : Array
+											) : GenericName 
 		{
-			genericParams = genericParams.map(function(type : Type, ... args) : Multiname { return type.multiname; });
+			// What does this do?
+			genericParams = genericParams.map(function(type : Type,	... args) : Multiname 
+												{ 
+													return type.multiname; 
+												});
 			
 			return new GenericName(genericTypeDefinition.multiname, genericParams);
 		}
 
 		private function getQualifiedName(typeName : String) : QualifiedName
 		{
-			var ns : String, nsKind : uint, name : String;
+			var ns : String;
+			var nsKind : int;
+			var name : String;
 				
 			if (typeName.indexOf('::') == -1)
 			{
@@ -104,10 +107,11 @@ package org.flemit.reflection
 		
 		private function setClassFlags(type : Type, typeXml : XML) : void
 		{
-			var isClass : Boolean = (typeXml.factory.extendsClass.length() > 0) || type.classDefinition == Object;
-			var isStatic : Boolean = (typeXml.@isStatic.toString() == "true");
+			const isClass : Boolean = (typeXml.factory.extendsClass.length() > 0) 
+										|| type.classDefinition == Object;
+			const isDynamic : Boolean = (typeXml.@isDynamic.toString() == "true");
+			
 			var isFinal : Boolean = (typeXml.@isFinal.toString() == "true");
-			var isDynamic : Boolean = (typeXml.@isDynamic.toString() == "true");
 			
 			// TODO: Experimental for nested types
 			if (isFinal && type.qname.ns.kind != NamespaceKind.PACKAGE_NAMESPACE)
@@ -122,28 +126,22 @@ package org.flemit.reflection
 		
 		private function getInterfaces(typeXml : XML) : Array
 		{
-			var interfaces : Array = new Array();
-			
+			const interfaces : Array = [];
 			for each(var interfaceNode : XML in typeXml.factory.implementsInterface)
 			{
-				var interfaceTypeName : String = interfaceNode.@type.toString();
-				
-				var interfaceType : Type = Type.getTypeByName(interfaceTypeName);
+				const interfaceTypeName : String = interfaceNode.@type.toString();
+				const interfaceType : Type = Type.getTypeByName(interfaceTypeName);
 				
 				interfaces.push(interfaceType);
 			}
-			
 			return interfaces;
 		}
 		
 		private function getBaseType(type : Type, typeXml : XML) : Type
 		{
-			var baseType : Type = null;
-				
 			if (!type.isInterface && type.classDefinition != Object)
 			{
-				var baseTypeName : String = typeXml.factory.extendsClass[0].@type.toString();
-				
+				const baseTypeName : String = typeXml.factory.extendsClass[0].@type.toString();
 				return Type.getTypeByName(baseTypeName);
 			}
 			
@@ -152,25 +150,21 @@ package org.flemit.reflection
 		
 		private function getGenericTypeDefinition(typeName : String) : Type
 		{
-			var genericExpr : RegExp = /^([^\<]+)\.\<.+\>$/;
-			
-			var genericTypeName : String = genericExpr.exec(typeName)[1].toString();
+			const genericExpr : RegExp = /^([^\<]+)\.\<.+\>$/;
+			const genericTypeName : String = genericExpr.exec(typeName)[1].toString();
 			
 			return Type.getTypeByName(genericTypeName);
 		}
 		
 		private function getGenericParameters(typeName : String) : Array
 		{
-			var genericParameters : Array = new Array();
-			
-			var paramsExpr : RegExp = /\<(.+)\>$/;
-			
-			var result : Object = paramsExpr.exec(typeName);
-			
+			const genericParameters : Array = [];
+			const paramsExpr : RegExp = /\<(.+)\>$/;
+			const result : Object = paramsExpr.exec(typeName);
 			if (result != null)
 			{
 				// TODO: Update with correct delmiter
-				var paramTypeNames : Array = result[1].toString().split(', ');
+				const paramTypeNames : Array = result[1].toString().split(', ');
 				
 				for each(var paramTypeName : String in paramTypeNames) 
 				{
@@ -184,7 +178,6 @@ package org.flemit.reflection
 		private function addMembers(typeXML : XML, owner : Type, isStatic : Boolean) : void 
 		{
 			var declaredBy : String = null;
-			
 			for each(var methodNode : XML in typeXML.method)
 			{
 				declaredBy = methodNode.@declaredBy.toString().replace('::',':');
@@ -193,8 +186,7 @@ package org.flemit.reflection
 				{
 					try
 					{
-						var methodInfo : MethodInfo = getMethodInfo(methodNode, owner, isStatic);
-						
+						const methodInfo : MethodInfo = getMethodInfo(methodNode, owner, isStatic);
 						owner.addMethod(methodInfo);
 					}
 					catch(err : TypeNotFoundError)
@@ -206,13 +198,14 @@ package org.flemit.reflection
 			for each(var propertyNode : XML in typeXML.accessor)
 			{
 				declaredBy = propertyNode.@declaredBy.toString().replace('::',':');
-				
 				if (declaredBy == owner.fullName)
 				{
 					try
 					{
-						var propertyInfo : PropertyInfo = getPropertyInfo(propertyNode, owner, isStatic);
-						
+						const propertyInfo : PropertyInfo = getPropertyInfo(	propertyNode, 
+																				owner, 
+																				isStatic
+																				);
 						owner.addProperty(propertyInfo);
 					}
 					catch(err : TypeNotFoundError)
@@ -222,13 +215,11 @@ package org.flemit.reflection
 			}
 			
 			var fieldInfo : FieldInfo = null;
-			
 			for each(var fieldNode : XML in typeXML.variable)
 			{
 				try
 				{
 					fieldInfo = getFieldInfo(fieldNode, owner, isStatic);
-
 					owner.addField(fieldInfo);
 				}
 				catch(err : TypeNotFoundError)
@@ -239,7 +230,6 @@ package org.flemit.reflection
 			for each(var constantNode : XML in typeXML.constant)
 			{
 				fieldInfo = getFieldInfo(constantNode, owner, isStatic);
-					
 				owner.addField(fieldInfo);
 			}
 		}
@@ -251,61 +241,97 @@ package org.flemit.reflection
 				: owner.qname.toString().concat('/', name);
 		}
 		
-		private function getMethodInfo(methodInfoNode : XML, owner : Type, isStatic : Boolean) : MethodInfo
+		private function getMethodInfo(	methodInfoNode : XML, 
+										owner : Type, 
+										isStatic : Boolean
+										) : MethodInfo
 		{
-			var uri : String = methodInfoNode.@uri.toString();
-			var name : String = methodInfoNode.@name.toString();
-			var returnTypeName : String = methodInfoNode.@returnType.toString();
+			const uri : String = methodInfoNode.@uri.toString();
+			const name : String = methodInfoNode.@name.toString();
+			const returnTypeName : String = methodInfoNode.@returnType.toString();
 			
-			var returnType : Type = (returnTypeName == "") ? Type.voidType : Type.getTypeByName(returnTypeName);
-			
-			var isOverride : Boolean = (owner.baseType != null && owner.baseType.getMethod(name) != null);
-			
-			var parameters : Array = new Array();
-			
+			const returnType : Type = returnTypeName == "" 
+														? Type.voidType 
+														: Type.getTypeByName(returnTypeName);
+			const isOverride : Boolean = (owner.baseType != null 
+														&& owner.baseType.getMethod(name) != null);
+			const parameters : Array = [];
 			for each(var parameterXML : XML in methodInfoNode.parameter)
 			{
-				var index : int = parseInt(parameterXML.@index.toString());
-				var parameterTypeName : String = parameterXML.@type.toString();
-				var optional : Boolean = (parameterXML.@optional.toString() == "true");
+				const index : int = parseInt(parameterXML.@index.toString());
+				const parameterTypeName : String = parameterXML.@type.toString();
+				const optional : Boolean = (parameterXML.@optional.toString() == "true");
 
-				var parameterName : String = ("arg" + index.toString());
-				var parameterType : Type = Type.getTypeByName(parameterTypeName); 
+				const parameterName : String = ("arg" + index.toString());
+				const parameterType : Type = Type.getTypeByName(parameterTypeName); 
 				
-				var parameter : ParameterInfo = new ParameterInfo(parameterName, parameterType, optional);
-				
+				const parameter : ParameterInfo = new ParameterInfo(	parameterName, 
+																		parameterType, 
+																		optional
+																		);
 				parameters.push(parameter);
 			}
 			
-			return new MethodInfo(owner, name, getMemberFullName(name, owner), MemberVisibility.PUBLIC, isStatic, isOverride, returnType, parameters, uri);
+			return new MethodInfo(	owner, 
+									name, 
+									getMemberFullName(name, owner), 
+									MemberVisibility.PUBLIC, 
+									isStatic, 
+									isOverride, 
+									returnType, 
+									parameters, 
+									uri
+									);
 		}
 		
-		private function getPropertyInfo(propertyInfoNode : XML, owner : Type, isStatic : Boolean) : PropertyInfo
+		private function getPropertyInfo(	propertyInfoNode : XML, 
+											owner : Type, 
+											isStatic : Boolean
+											) : PropertyInfo
 		{
-			var uri : String = propertyInfoNode.@uri.toString();
-			var name : String = propertyInfoNode.@name.toString();
-			var typeName : String = propertyInfoNode.@type.toString();
+			const uri : String = propertyInfoNode.@uri.toString();
+			const name : String = propertyInfoNode.@name.toString();
+			const typeName : String = propertyInfoNode.@type.toString();
 			
-			var propertyType : Type = Type.getTypeByName(typeName);
+			const propertyType : Type = Type.getTypeByName(typeName);
 			
-			var access : String = propertyInfoNode.@access.toString();
-			var canRead : Boolean = (access == "readonly" || access == "readwrite");
-			var canWrite : Boolean = (access == "writeonly" || access == "readwrite");
+			const access : String = propertyInfoNode.@access.toString();
+			const canRead : Boolean = (access == "readonly" || access == "readwrite");
+			const canWrite : Boolean = (access == "writeonly" || access == "readwrite");
 			
-			var isOverride : Boolean = (owner.baseType != null && owner.baseType.getProperty(name) != null);
+			const isOverride : Boolean = (owner.baseType != null 
+													&& owner.baseType.getProperty(name) != null);
 			
-			return new PropertyInfo(owner, name, getMemberFullName(name, owner), MemberVisibility.PUBLIC, isStatic, isOverride, propertyType, canRead, canWrite, uri);
+			return new PropertyInfo(	owner, 
+										name, 
+										getMemberFullName(name, owner), 
+										MemberVisibility.PUBLIC, 
+										isStatic, 
+										isOverride, 
+										propertyType, 
+										canRead, 
+										canWrite, 
+										uri
+										);
 		}
 		
-		private function getFieldInfo(fieldInfoNode : XML, owner : Type, isStatic : Boolean) : FieldInfo
+		private function getFieldInfo(	fieldInfoNode : XML, 
+										owner : Type, 
+										isStatic : Boolean
+										) : FieldInfo
 		{
-			var name : String = fieldInfoNode.@name.toString();
-			var typeName : String = fieldInfoNode.@type.toString();
+			const name : String = fieldInfoNode.@name.toString();
+			const typeName : String = fieldInfoNode.@type.toString();
 			
-			var type : Type = Type.getTypeByName(typeName);
+			const type : Type = Type.getTypeByName(typeName);
 			
-			return new FieldInfo(owner, name, getMemberFullName(name, owner), MemberVisibility.PUBLIC, isStatic, type);
+			return new FieldInfo(	owner, 
+									name, 
+									getMemberFullName(name, owner), 
+									MemberVisibility.PUBLIC, 
+									isStatic, 
+									type
+									);
 		}
-
 	}
 }

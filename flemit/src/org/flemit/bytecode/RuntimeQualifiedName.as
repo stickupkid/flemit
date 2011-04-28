@@ -5,7 +5,9 @@ package org.flemit.bytecode
 	{
 		private var _name : String;
 		
-		public function RuntimeQualifiedName(name : String, kind : int = MultinameKind.RUNTIME_QUALIFIED_NAME)
+		public function RuntimeQualifiedName(	name : String, 
+												kind : int = MultinameKind.RUNTIME_QUALIFIED_NAME
+												)
 		{
 			super(kind);
 			

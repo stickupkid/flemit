@@ -7,7 +7,10 @@ package org.flemit.bytecode
 		
 		private var _ns : BCNamespace;
 		
-		public function QualifiedName(ns : BCNamespace, name : String, kind : uint = MultinameKind.QUALIFIED_NAME)
+		public function QualifiedName(	ns : BCNamespace, 
+										name : String, 
+										kind : int = MultinameKind.QUALIFIED_NAME
+										)
 		{
 			super(kind);
 			
