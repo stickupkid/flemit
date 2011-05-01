@@ -723,14 +723,16 @@ package org.flemit.bytecode
 		{
 			const dict : Dictionary = new Dictionary();
 			
-			const multiname : int = InstructionArgumentType.Multiname;
+			const clazz : int = InstructionArgumentType.Class;
 			const method : int = InstructionArgumentType.Method;
-			const double : int = InstructionArgumentType.Double;
+			const multiname : int = InstructionArgumentType.Multiname;
+			const u30 : int = InstructionArgumentType.U30;
 			const integer : int = InstructionArgumentType.Integer;
 			const uInteger : int = InstructionArgumentType.UInteger;
+			const double : int = InstructionArgumentType.Double;
+			const string : int = InstructionArgumentType.String;
 			const u8 : int = InstructionArgumentType.U8;
 			const s24 : int = InstructionArgumentType.S24;
-			const u30 : int = InstructionArgumentType.U30;
 			
 			dict[Instructions.AsType] = [multiname];
 			dict[Instructions.Call] = [u30];
@@ -745,13 +747,13 @@ package org.flemit.bytecode
 			dict[Instructions.Construct] = [u30];
 			dict[Instructions.ConstructProp] = [multiname, u30];
 			dict[Instructions.ConstructSuper] = [u30];
-			dict[Instructions.Debug] = [u8, String, u8, u30];
-			dict[Instructions.DebugFile] = [String];
+			dict[Instructions.Debug] = [u8, string, u8, u30];
+			dict[Instructions.DebugFile] = [string];
 			dict[Instructions.DebugLine] = [u30];
 			dict[Instructions.DecrementLocal] = [u30];
 			dict[Instructions.DecrementLocalInteger] = [u30];
 			dict[Instructions.DeleteProperty] = [multiname];
-			dict[Instructions.DefaultXMLNamespace] = [String];
+			dict[Instructions.DefaultXMLNamespace] = [string];
 			dict[Instructions.FindProperty] = [multiname];
 			dict[Instructions.FindPropertyStrict] = [multiname];
 			dict[Instructions.GetDescendants] = [multiname];
@@ -786,7 +788,7 @@ package org.flemit.bytecode
 			dict[Instructions.LookUpSwitch] = notSupportedInstructionHandler;
 			dict[Instructions.NewArray] = [u30];
 			dict[Instructions.NewCatch] = notSupportedInstructionHandler;
-			dict[Instructions.NewClass] = [Class];
+			dict[Instructions.NewClass] = [clazz];
 			dict[Instructions.NewFunction] = [MethodInfo];
 			dict[Instructions.NewObject] = [u30];
 			dict[Instructions.PushByte] = [u8];
@@ -794,7 +796,7 @@ package org.flemit.bytecode
 			dict[Instructions.PushInt] = [integer];
 			dict[Instructions.PushNamespace] = [Namespace];
 			dict[Instructions.PushShort] = [u30];
-			dict[Instructions.PushString] = [String];
+			dict[Instructions.PushString] = [string];
 			dict[Instructions.PushUInt] = [uInteger];
 			dict[Instructions.SetLocal] = [u30];
 			dict[Instructions.SetGlobalSlot] = [u30];
