@@ -22,7 +22,7 @@ package org.flemit.tags
 			_scriptTimeoutSeconds = scriptTimeoutSeconds;
 		}
 		
-		public override function writeData(output:ISWFOutput):void		
+		public override function writeData(output : ISWFOutput):void		
 		{
 			output.writeUI16(_maxRecursionDepth);
 			output.writeUI16(_scriptTimeoutSeconds);

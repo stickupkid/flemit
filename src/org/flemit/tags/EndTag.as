@@ -12,7 +12,7 @@ package org.flemit.tags
 			super(TAG_ID);
 		}
 		
-		public override function writeData(output:ISWFOutput):void		
+		public override function writeData(output : ISWFOutput):void		
 		{
 		}
 	}

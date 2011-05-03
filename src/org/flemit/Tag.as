@@ -24,11 +24,6 @@ package org.flemit
 		{
 			throw new IllegalOperationError("Not implemented");
 		}
-
-		public function readData(input : ISWFInput) : void
-		{
-			throw new IllegalOperationError("Not implemented");
-		}
 		
 		public function get tagID() : int {	return _tagID; }
 

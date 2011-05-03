@@ -25,31 +25,22 @@ package org.flemit.tags
 			"reserved", "reserved", "reserved"
 			];
 		
-		public function FileAttributesTag()
+		public function FileAttributesTag(	useDirectBlit : Boolean, 
+											useGPU : Boolean, 
+											hasMetadata : Boolean, 
+											actionScript3 : Boolean, 
+											useNetwork : Boolean)
 		{
 			super(TAG_ID);
+			
+			_useDirectBlit = useDirectBlit;
+			_useGPU = useGPU;
+			_hasMetadata = hasMetadata;
+			_actionScript3 = actionScript3;
+			_useNetwork = useNetwork;
 		}
 		
-		public static function create(
-										useDirectBlit : Boolean, 
-										useGPU : Boolean, 
-										hasMetadata : Boolean, 
-										actionScript3 : Boolean, 
-										useNetwork : Boolean
-										) : FileAttributesTag
-		{
-			const tag : FileAttributesTag = new FileAttributesTag();
-			
-			tag.useDirectBlit = useDirectBlit;
-			tag.useGPU = useGPU;
-			tag.hasMetadata = hasMetadata;
-			tag.actionScript3 = actionScript3;
-			tag.useNetwork = useNetwork;
-			
-			return tag;
-		}
-		
-		public override function writeData(output:ISWFOutput):void		
+		public override function writeData(output : ISWFOutput):void		
 		{
 			for each(var prop : String in _outputOrder)
 			{

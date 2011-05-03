@@ -4,6 +4,7 @@ package org.flemit.reflection
 	public final class MethodInfo extends MemberInfo
 	{
 		private var _returnType : Type;
+		
 		private var _parameters : Array;
 		
 		public function MethodInfo(	type : Type, 

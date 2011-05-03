@@ -2,7 +2,7 @@ package org.flemit.util
 {
 	import flash.utils.getQualifiedClassName;
 	
-	public class ClassUtility
+	public final class ClassUtility
 	{
 		
 		public static const MAX_CREATECLASS_ARG_COUNT : int = 50;
@@ -31,7 +31,6 @@ package org.flemit.util
 				classString = getQualifiedClassName(cls);
 				
 			classString = classString.replace('::', '.');
-				
 			
 			const packageParts : Array = packageString.split('.');
 			const packagePartsTotal : int = packageParts.length;

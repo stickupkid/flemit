@@ -30,7 +30,7 @@ package org.flemit.tags
 			_blue = blue;
 		}
 
-		public override function writeData(output:ISWFOutput):void		
+		public override function writeData(output : ISWFOutput):void		
 		{
 			output.writeUI8(_red);
 			output.writeUI8(_green);

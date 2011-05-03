@@ -14,24 +14,19 @@ package org.flemit.tags
 		
 		private static const FLAGS_NONE : int = 0x0;
 		
-		private static const FLAGS_LAZY : int = 0x1; 
-		
 		private var _layout : IByteCodeLayout;
 		
 		private var _name : String;
 		
-		private var _lazy : Boolean;
-		
-		public function DoABCTag(lazy : Boolean, name : String, layout : IByteCodeLayout)
+		public function DoABCTag(name : String, layout : IByteCodeLayout)
 		{
 			super(TAG_ID);
 			
 			_layout = layout;
 			_name = name;
-			_lazy = lazy;
 		}
 		
-		public override function writeData(output:ISWFOutput):void
+		public override function writeData(output : ISWFOutput):void
 		{
 			const flags : uint = getFlags();
 			
@@ -49,18 +44,9 @@ package org.flemit.tags
 			output.writeBytes(byteArray, 0, byteArray.bytesAvailable);
 		}
 		
-		public override function readData(input : ISWFInput) : void
-		{
-			_lazy = (input.readUI8() == 0x01);
-			_name = input.readString();
-			 			
-		}
-		
 		private function getFlags() : uint
 		{
-			return (_lazy)
-				? FLAGS_LAZY
-				: FLAGS_NONE; 
+			return FLAGS_NONE;
 		}
 	}
 }
