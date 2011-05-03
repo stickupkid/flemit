@@ -18,7 +18,7 @@ package org.flemit.bytecode
 			_name = name;
 		}
 		
-		public override function equals(object:Object):Boolean
+		public override function equals(object : IEqualityComparable):Boolean
 		{
 			const qname : QualifiedName = object as QualifiedName;
 			if (qname != null) return qname.ns.equals(_ns) && qname.name == _name; 

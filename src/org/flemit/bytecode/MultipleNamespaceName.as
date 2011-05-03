@@ -18,7 +18,7 @@ package org.flemit.bytecode
 			_namespaceSet = namespaceSet;
 		}
 
-		public override function equals(object : Object) : Boolean
+		public override function equals(object : IEqualityComparable) : Boolean
 		{
 			const mnsn : MultipleNamespaceName = object as MultipleNamespaceName;
 			if (mnsn != null) return mnsn.name == _name && mnsn.namespaceSet.equals(_namespaceSet);

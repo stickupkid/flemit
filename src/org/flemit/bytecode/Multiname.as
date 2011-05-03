@@ -1,6 +1,5 @@
 package org.flemit.bytecode
 {
-	import org.flemit.util.ClassUtility;
 	
 	public class Multiname implements IEqualityComparable
 	{
@@ -8,12 +7,10 @@ package org.flemit.bytecode
 		
 		public function Multiname(kind : int)
 		{
-			ClassUtility.assertAbstract(this, Multiname);
-			
 			_kind = kind;
 		}
 		
-		public function equals(object : Object) : Boolean
+		public function equals(object : IEqualityComparable) : Boolean
 		{
 			return false;
 		}

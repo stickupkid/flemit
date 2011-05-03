@@ -19,8 +19,8 @@ package org.flemit.reflection
 		{
 			super(type, name, fullName, visibility, isStatic, isOverride, ns);
 			
-			_returnType= returnType;
-			_parameters = [].concat(parameters || []);
+			_returnType = returnType;
+			_parameters = parameters ? [].concat(parameters) : [];
 		}
 		
 		public function get returnType() : Type

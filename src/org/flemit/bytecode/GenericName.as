@@ -15,11 +15,11 @@ package org.flemit.bytecode
 			super(kind);
 			
 			_typeDefinition = typeDefinition;
-			_genericParameters = new Array().concat(genericParameters);
+			_genericParameters = [].concat(genericParameters);
 		}
 		
 		
-		public override function equals(object:Object):Boolean
+		public override function equals(object : IEqualityComparable):Boolean
 		{
 			const gn : GenericName = object as GenericName;
 			if (gn != null)

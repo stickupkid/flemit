@@ -10,7 +10,7 @@ package org.flemit.bytecode
 			_namespaces = [].concat(namespaces);
 		}
 		
-		public function equals(object : Object) : Boolean 
+		public function equals(object : IEqualityComparable) : Boolean 
 		{
 			const namespaceSet : NamespaceSet = object as NamespaceSet;
 			if (namespaceSet != null)

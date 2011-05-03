@@ -18,7 +18,7 @@ package org.flemit.bytecode
 			return new BCNamespace(name, NamespaceKind.PACKAGE_NAMESPACE);
 		}
 
-		public function equals(object:Object):Boolean
+		public function equals(object : IEqualityComparable):Boolean
 		{
 			const ns : BCNamespace = object as BCNamespace;
 			if (ns != null) return ns.name == _name && ns.kind == _kind;

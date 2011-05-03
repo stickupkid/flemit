@@ -1,6 +1,5 @@
 package org.flemit.util
 {
-	import flash.errors.IllegalOperationError;
 	import flash.utils.getQualifiedClassName;
 	
 	public class ClassUtility
@@ -21,18 +20,6 @@ package org.flemit.util
 			createClass45, createClass46, createClass47, createClass48, createClass49, 
 			createClass50
 			];
-		
-		public static function assertAbstract(instance : Object, cls : Class) : void
-		{
-			const instanceName : String = getQualifiedClassName(instance);
-			const className : String = getQualifiedClassName(cls); 
-			
-			if (instanceName == className)
-			{
-				throw new IllegalOperationError("Cannot create instance of abstract class '" + 
-																				className + "'");
-			}
-		}
 		
 		public static function isMatch(packageString : String, cls : *) : Boolean
 		{
