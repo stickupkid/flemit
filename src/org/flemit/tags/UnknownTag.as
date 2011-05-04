@@ -1,6 +1,5 @@
 package org.flemit.tags
 {
-	import org.flemit.Tag;
 	
 	public final class UnknownTag extends Tag
 	{

@@ -1,9 +1,10 @@
 package org.flemit.tags
 {
+	import org.flemit.ISWFOutput;
+	import org.flemit.bytecode.IByteCodeLayout;
+
 	import flash.utils.ByteArray;
 	
-	import org.flemit.*;
-	import org.flemit.bytecode.IByteCodeLayout;
 	
 	/**
 	 * Represents an AVM2 bytecode tag

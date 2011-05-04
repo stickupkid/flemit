@@ -1,5 +1,7 @@
 package org.flemit
 {
+	import org.flemit.tags.ITag;
+
 	import flash.utils.ByteArray;
 	import flash.utils.Endian;
 	import flash.utils.IDataOutput;
@@ -23,15 +25,14 @@ package org.flemit
 			_tagDataWriter = new SWFOutput(_tagDataBuffer);
 		}
 		
-		public function write(output : IDataOutput, header : SWFHeader, tags : Array) : void
+		public function write(output : IDataOutput, header : SWFHeader, tags : Vector.<ITag>) : void
 		{
 			output.endian = Endian.BIG_ENDIAN;
 			
 			const buffer : ByteArray = new ByteArray();
 			
-			var swfOutput : SWFOutput = new SWFOutput(buffer);
-			
-			writeInternal(swfOutput, header, tags);
+			const bufferOutput : ISWFOutput = new SWFOutput(buffer);
+			writeInternal(bufferOutput, header, tags);
 			
 			buffer.position = 0;
 			
@@ -39,8 +40,7 @@ package org.flemit
 			
 			// FileSize is uncompressed
 			const fileSize : int = buffer.bytesAvailable + PRE_HEADER_SIZE;
-			 
-			swfOutput = new SWFOutput(output);
+			const swfOutput : ISWFOutput = new SWFOutput(output);
 			
 			if (_compress)
 			{
@@ -48,10 +48,7 @@ package org.flemit
 				
 				swfOutput.writeUI8("C".charCodeAt(0));
 			}
-			else
-			{
-				swfOutput.writeUI8("F".charCodeAt(0));
-			}
+			else swfOutput.writeUI8("F".charCodeAt(0));
 			
 			swfOutput.writeUI8("W".charCodeAt(0));
 			swfOutput.writeUI8("S".charCodeAt(0));
@@ -63,43 +60,37 @@ package org.flemit
 			output.writeBytes(buffer, 0, buffer.bytesAvailable);
 		}
 		
-		private function writeInternal(	swfOutput : SWFOutput, 
+		private function writeInternal(	output : ISWFOutput, 
 										header : SWFHeader, 
-										tags : Array
+										tags : Vector.<ITag>
 										) : void
 		{
 			// TODO: Write the actual header here
 			for each(var byte : int in _hardCodedHeader)
-				swfOutput.writeUI8(byte);
-				
-			for each(var tag : Tag in tags)
-				writeTag(swfOutput, tag);
+				output.writeUI8(byte);
+			
+			const total : int = tags.length;
+			for(var i : int = 0; i<total; i++)
+				writeTag(output, tags[i]);
 		}
 		
-		private function writeTag(output : ISWFOutput, tag : Tag) : void
+		private function writeTag(output : ISWFOutput, tag : ITag) : void
 		{
 			_tagDataBuffer.position = 0;
 			
 			tag.writeData(_tagDataWriter);
 			
-			var tagLength : uint = _tagDataBuffer.position;
-			
+			const tagLength : uint = _tagDataBuffer.position;
 			if (tagLength >= 63)
 			{
 				output.writeUI16( (tag.tagID << 6) | 0x3F );
 				output.writeUI32( tagLength ); 
 			}
-			else
-			{
-				output.writeUI16( (tag.tagID << 6) | tagLength );
-			}
+			else output.writeUI16( (tag.tagID << 6) | tagLength );
 			
 			_tagDataBuffer.position = 0;
 			
-			if (tagLength > 0)
-			{
-				output.writeBytes(_tagDataBuffer, 0, tagLength);
-			}
+			if (tagLength > 0) output.writeBytes(_tagDataBuffer, 0, tagLength);
 		}
 				
 		public function get compress() : Boolean { return _compress; }

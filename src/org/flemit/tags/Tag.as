@@ -1,8 +1,10 @@
-package org.flemit
+package org.flemit.tags
 {
+	import org.flemit.ISWFOutput;
+
 	import flash.errors.IllegalOperationError;
 
-	public class Tag
+	public class Tag implements ITag
 	{
 
 		private var _tagID : int;

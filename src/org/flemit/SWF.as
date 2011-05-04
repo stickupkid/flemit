@@ -1,13 +1,15 @@
 package org.flemit
 {
+	import org.flemit.tags.ITag;
+	
 	public class SWF
 	{
 
 		private var _header : SWFHeader;
 
-		private var _tags : Array;
+		private var _tags : Vector.<ITag>;
 
-		public function SWF(header : SWFHeader, tags : Array)
+		public function SWF(header : SWFHeader, tags : Vector.<ITag>)
 		{
 			_header = header;
 			_tags = tags;
@@ -15,6 +17,6 @@ package org.flemit
 
 		public function get header() : SWFHeader { return _header; }
 
-		public function get tags() : Array { return _tags; }
+		public function get tags() : Vector.<ITag> { return _tags; }
 	}
 }

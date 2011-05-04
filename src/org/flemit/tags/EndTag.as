@@ -1,7 +1,6 @@
 package org.flemit.tags
 {
 	import org.flemit.ISWFOutput;
-	import org.flemit.Tag;
 	
 	public final class EndTag extends Tag
 	{
