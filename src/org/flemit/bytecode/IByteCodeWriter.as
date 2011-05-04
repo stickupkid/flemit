@@ -15,5 +15,7 @@ package org.flemit.bytecode
 		function writeD64(value : Number) : void;
 		
 		function writeBytes(byteArray : ByteArray, offset : uint = 0, length : uint = 0) : void;
+		
+		function dispose() : void;
 	}
 }

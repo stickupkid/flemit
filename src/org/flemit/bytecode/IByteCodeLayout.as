@@ -5,6 +5,8 @@ package org.flemit.bytecode
 	
 	public interface IByteCodeLayout
 	{
-		function write(output : IDataOutput) : void;		
+		function write(output : IDataOutput) : void;
+		
+		function dispose() : void;	
 	}
 }

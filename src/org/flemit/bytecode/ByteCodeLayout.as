@@ -71,6 +71,49 @@ package org.flemit.bytecode
 			registerMultiname(Type.star.qname);
 		}
 		
+		
+		public function dispose() : void
+		{
+			_integers.length = 0;
+			_integers = null;
+			
+			_uintegers.length = 0;
+			_uintegers = null;
+			
+			_doubles.length = 0;
+			_doubles = null;
+			
+			_strings.length = 0;
+			_strings = null;
+			
+			_namespaces.length = 0;
+			_namespaces = null;
+			
+			_namespaceSets.length = 0;
+			_namespaceSets = null;
+			
+			_multinames.length = 0;
+			_multinames = null;
+			
+			_methods.length = 0;
+			_methods = null;
+			
+			_metadata.length = 0;
+			_metadata = null;
+			
+			_types.length = 0;
+			_types = null;
+			
+			_methodBodies.length = 0;
+			_methodBodies = null;
+			
+			_methodBodiesBuffer.length = 0;
+			_methodBodiesBuffer = null;
+			
+			_methodBodiesWriter.dispose();
+			_methodBodiesWriter = null;
+		}
+		
 		public function write(output : IDataOutput) : void
 		{
   			_readOnly = true;
@@ -713,6 +756,7 @@ package org.flemit.bytecode
 			}
 			return index;
 		}
+
 	}
 }
 import org.flemit.bytecode.IEqualityComparable;

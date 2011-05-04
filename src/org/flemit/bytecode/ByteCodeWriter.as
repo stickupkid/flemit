@@ -19,6 +19,12 @@ package org.flemit.bytecode
 			_buffer.endian = Endian.LITTLE_ENDIAN;
 		}
 		
+		public function dispose() : void
+		{
+			_buffer.length = 0;
+			_buffer = null;
+		}
+		
 		public function writeString(value : String) : void
 		{
 			writeU30(value.length);
