@@ -50,18 +50,38 @@ package org.flemit.util
 			return (packagePartsTotal == classPartsTotal);
 		}
 		
-		public static function createClass(cls : Class, args : Array) : Object
+		public static function createClass(cls : Class, args : Array = null) : Object
 		{
-			const delegateArgs : Array = [cls].concat(args); // clone
+			// exit it out quickly
+			if(null == args)
+				return createClass0(cls);
 			
-			if (args.length > MAX_CREATECLASS_ARG_COUNT)
+			// Create a hot path code for quick variable access. 
+			const total : int = args.length;
+			if(total == 0)
+				return createClass0(cls);
+			else if(total == 1)
+				return createClass1(cls, args[0]);
+			else if(total == 2)
+				return createClass2(cls, args[0], args[1]);
+			else if(total == 3)
+				return createClass3(cls, args[0], args[1], args[2]);
+			else if(total == 4)
+				return createClass4(cls, args[0], args[1], args[2], args[3]);
+			else
 			{
-				throw new ArgumentError("Argument count greater than supported (50)");
+				// do the longer more expensive method.
+				const delegateArgs : Array = [cls].concat(args); // clone
+				
+				if (total > MAX_CREATECLASS_ARG_COUNT)
+				{
+					throw new ArgumentError("Argument count greater than supported (50)");
+				}
+				
+				const delegate : Function = _createClassDelegates[total];
+				
+				return delegate.apply(null, delegateArgs);
 			}
-			
-			const delegate : Function = _createClassDelegates[args.length];
-			
-			return delegate.apply(null, delegateArgs);
 		}
 		
 		private static function createClass0(cls : Class) : Object { return new cls(); }
