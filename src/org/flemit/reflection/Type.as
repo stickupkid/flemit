@@ -47,7 +47,7 @@ package org.flemit.reflection
 		private var _genericParameters : Array;
 
 		private var _genericTypeDefinition : Type;
-		
+				
 		protected var _baseClass : Type;
 
 		protected var _properties : Array;
@@ -235,9 +235,10 @@ package org.flemit.reflection
 
 			return false;
 		}
-		
+				
 		public function getProperties(	includeStatic : Boolean = true, 
-										includeInstance : Boolean = true
+										includeInstance : Boolean = true,
+										trySuper : Boolean = false
 										) : Array
 		{
 			const result : Array = [];
@@ -255,11 +256,21 @@ package org.flemit.reflection
 				}
 			}
 			
-			return result;
+			if(null == baseType)
+				return result;
+			
+			return trySuper 
+							? result.concat(baseType.getProperties(
+																	includeStatic, 
+																	includeInstance,
+																	trySuper
+																	)) 
+							: result;
 		}
-		
+				
 		public function getMethods(	includeStatic : Boolean = true, 
-									includeInstance : Boolean = true
+									includeInstance : Boolean = true,
+									trySuper : Boolean = false
 									) : Array
 		{
 			const result : Array = [];
@@ -277,11 +288,21 @@ package org.flemit.reflection
 				}
 			}
 			
-			return result;
+			if(null == baseType)
+				return result;
+						
+			return trySuper 
+							? result.concat(baseType.getMethods(
+																includeStatic, 
+																includeInstance,
+																trySuper
+																)) 
+							: result;
 		}
-		
+				
 		public function getFields(	includeStatic : Boolean = true, 
-									includeInstance : Boolean = true
+									includeInstance : Boolean = true,
+									trySuper : Boolean = false
 									) : Array
 		{
 			const result : Array = [];
@@ -299,11 +320,21 @@ package org.flemit.reflection
 				}
 			}
 			
-			return result;
+			if(null == baseType)
+				return result;
+			
+			return trySuper 
+							? result.concat(baseType.getFields(
+																includeStatic, 
+																includeInstance,
+																trySuper
+																)) 
+							: result;
 		}
 		
 		public function getMembers(	includeStatic : Boolean = true, 
-									includeInstance : Boolean = true
+									includeInstance : Boolean = true,
+									trySuper : Boolean = false
 									) : Array
 		{
 			const members : Array = _methods.concat(_properties).concat(_fields);
@@ -323,7 +354,16 @@ package org.flemit.reflection
 				}
 			}
 			
-			return result;
+			if(null == baseType)
+				return result;
+			
+			return trySuper 
+							? result.concat(baseType.getMembers(
+																includeStatic, 
+																includeInstance,
+																trySuper
+																)) 
+							: result;
 		}
 		
 		public function getProperty(	name : String, 
