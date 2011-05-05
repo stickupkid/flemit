@@ -7,7 +7,7 @@ package org.flemit.util
 	 */
 	public final class DescribeTypeUtil
 	{
-		public static const _descriptions : Dictionary = new Dictionary(true);
+		private static const _descriptions : Dictionary = new Dictionary(true);
 		
 		public static function describe(item : *) : XML
 		{
