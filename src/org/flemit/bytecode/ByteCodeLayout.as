@@ -1,6 +1,7 @@
 package org.flemit.bytecode
 {
 	import org.flemit.reflection.FieldInfo;
+	import org.flemit.reflection.MetadataInfo;
 	import org.flemit.reflection.MethodInfo;
 	import org.flemit.reflection.ParameterInfo;
 	import org.flemit.reflection.PropertyInfo;
@@ -400,6 +401,19 @@ package org.flemit.bytecode
 			});
 		}
 		
+		public function registerMetadata(value : MetadataInfo) : uint
+		{
+			registerString(value.name);
+			const params : Dictionary = value.parameters;
+			for(var key : String in params)
+			{
+				registerString(key);
+				registerString(params[key]);
+			}
+			
+			return assertArrayIndex(_metadata, value);
+		}
+		
 		private function registerTypeMultiname(type : Type) : void
 		{
 			if (type.isGeneric)
@@ -438,6 +452,7 @@ package org.flemit.bytecode
 				for (var i : int = 1; i < total; i++)
 					output.writeU30(multiname[i]);
 			}, 1);
+			
 		}
 				
 		private function writeMethods(output : IByteCodeWriter) : void
@@ -522,7 +537,35 @@ package org.flemit.bytecode
 		
 		private function writeMetadata(output : IByteCodeWriter) : void
 		{
-			output.writeU30(0);
+			const total : int = _metadata.length;
+			
+			output.writeU30(total);
+			
+			for(var i : int = 0; i<total; i++)
+			{
+				const metadataEntry : MetadataInfo = _metadata[i];
+				
+				output.writeU30(registerString(metadataEntry.name));
+				
+				
+				// There's no way to get the number of entries in a Dictionary, so we copy to an Array first... weak
+				var parameters:Dictionary = metadataEntry.parameters;
+				var keys:Array = [];
+				for (var keyValue:String in parameters) 
+				{
+					keys[keys.length] = keyValue;
+				}
+				
+				output.writeU30(keys.length);
+				for each (var key:String in keys) 
+				{
+					output.writeU30(registerString(key));
+				}
+				for each (var value:String in parameters) 
+				{
+					output.writeU30(registerString(value));
+				}
+			}
 		}
 		
 		private function writeClasses(output : IByteCodeWriter) : void

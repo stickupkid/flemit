@@ -1,23 +1,31 @@
 package org.flemit.bytecode
 {
 	import org.flemit.reflection.FieldInfo;
+	import org.flemit.reflection.MetadataInfo;
 	import org.flemit.reflection.MethodInfo;
 	import org.flemit.reflection.PropertyInfo;
 	import org.flemit.reflection.Type;
-	
+
 	import flash.utils.Dictionary;
 		
 	public final class DynamicClass extends Type
 	{
-		public var methodBodies : Dictionary = new Dictionary();
+		public const methodBodies : Dictionary = new Dictionary();
+		
+		public const metadata : Vector.<MetadataInfo> = new Vector.<MetadataInfo>();
 		
 		public function DynamicClass(qname : QualifiedName, baseClass : Type, interfaces : Array)
 		{
 			super(qname);
 			
-			super._baseClass = baseClass;
+			_baseClass = baseClass;
 			
 			_interfaces = interfaces;
+		}
+		
+		public function addMetadata(metaDataInfo : MetadataInfo) : void
+		{
+			metadata.push(metaDataInfo);
 		}
 		
 		public function addMethodBody(method : MethodInfo, methodBody : DynamicMethod) : void

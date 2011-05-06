@@ -1,17 +1,13 @@
 package org.flemit.bytecode
 {
-	import org.flemit.reflection.MethodInfo;
+	import org.flemit.reflection.MetadataInfo;
 	import org.flemit.reflection.Type;
 	import org.flemit.util.ClassUtility;
-	
-	import flash.utils.Dictionary;
 	
 	public final class ByteCodeLayoutBuilder implements IByteCodeLayoutBuilder
 	{
 		
 		private var _types : Array = [];
-		
-		private var _methods : Dictionary = new Dictionary();
 		
 		private var _ignoredPackages : Array = [	"flash.*", 
 													"mx.*", 
@@ -41,16 +37,11 @@ package org.flemit.bytecode
 			}
 		}
 		
-		public function registerMethodBody(method : MethodInfo, methodBody : DynamicMethod) : void
-		{
-			_methods[method] = methodBody;
-		}
-		
 		public function createLayout() : IByteCodeLayout
 		{
 			var layout : ByteCodeLayout = new ByteCodeLayout();
 			
-			for each(var type : Type in this._types)
+			for each(var type : Type in _types)
 			{
 				const dynamicClass : DynamicClass = type as DynamicClass;
 				
@@ -68,6 +59,11 @@ package org.flemit.bytecode
 						for each (var methodBody : DynamicMethod in dynamicClass.methodBodies)
 						{
 							layout.registerMethodBody(methodBody.method, methodBody);
+						}
+						
+						for each (var metadata : MetadataInfo in dynamicClass.metadata)
+						{
+							layout.registerMetadata(metadata);
 						}
 					}
 				}
