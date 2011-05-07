@@ -1,11 +1,16 @@
 package org.flemit.reflection
 {
+	import org.flemit.bytecode.BCNamespace;
+	import org.flemit.bytecode.GenericName;
+	import org.flemit.bytecode.Multiname;
+	import org.flemit.bytecode.NamespaceKind;
+	import org.flemit.bytecode.QualifiedName;
 	import org.flemit.util.DescribeTypeUtil;
-	import flash.utils.*;
-	import flash.system.*;
+
 	import flash.net.registerClassAlias;
-	
-	import org.flemit.bytecode.*;
+	import flash.system.ApplicationDomain;
+	import flash.utils.Dictionary;
+	import flash.utils.getQualifiedClassName;
 	
 	
 	public final class DescribeTypeTypeProvider implements ITypeProvider
@@ -245,7 +250,7 @@ package org.flemit.reflection
 										owner : Type, 
 										isStatic : Boolean
 										) : MethodInfo
-		{
+		{			
 			const uri : String = methodInfoNode.@uri.toString();
 			const name : String = methodInfoNode.@name.toString();
 			const returnTypeName : String = methodInfoNode.@returnType.toString();
