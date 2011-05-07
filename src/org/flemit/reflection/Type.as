@@ -15,7 +15,9 @@ package org.flemit.reflection
 	{
 		
 		private static var _typeProvider : ITypeProvider = new DescribeTypeTypeProvider();
-
+		
+		private static var _cachedTypes : Dictionary = new Dictionary(true);
+		
 		private static var _star : Type = createStar();
 
 		private static var _rest : Type = createRest();
@@ -151,11 +153,11 @@ package org.flemit.reflection
 			return (result != null) ? result[1] : typeName;
 		}
 
-		public static function getType(obj : Object) : Type
-		{
+		public static function getType(obj : Object, useCache : Boolean = true) : Type
+		{	
 			if (obj == null)
 				throw new ArgumentError("obj cannot be null");
-
+			
 			var cls : Class = null;
 			
 			// for when obj has no constructor property (why does it not extend Error or have an ID?)
@@ -169,8 +171,17 @@ package org.flemit.reflection
 
 			if (cls == null)
 				cls = getDefinitionByName(getQualifiedClassName(obj)) as Class;
-
-			return _typeProvider.getType(cls, ApplicationDomain.currentDomain);
+			
+			// Return the cached version
+			if(useCache && _cachedTypes[cls]) 
+				return _cachedTypes[cls];
+			
+			const type : Type = _typeProvider.getType(cls, ApplicationDomain.currentDomain);
+			
+			// Cache the value if we're using the cache
+			if(useCache) _cachedTypes[cls] = type;
+			
+			return type;
 		}
 		
 		private static function createStar() : Type
