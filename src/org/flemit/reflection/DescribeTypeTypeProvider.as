@@ -1,5 +1,6 @@
 package org.flemit.reflection
 {
+	import flash.utils.getDefinitionByName;
 	import org.flemit.bytecode.BCNamespace;
 	import org.flemit.bytecode.GenericName;
 	import org.flemit.bytecode.Multiname;
@@ -277,6 +278,25 @@ package org.flemit.reflection
 				parameters.push(parameter);
 			}
 			
+			const metadatas : Array = [];
+			for each(var metadataXML : XML in methodInfoNode.metadata)
+			{
+				const metadataName : String = metadataXML.@name.toString();
+				
+				const metadataParameters : Dictionary = new Dictionary();
+				for each(var metadataArgXML : XML in metadataXML.arg)
+				{
+					const metadataArgKey : String = metadataArgXML.@key.toString();
+					const metadataArgValue : String = metadataArgXML.@value.toString();
+					
+					metadataParameters[metadataArgKey] = metadataArgValue;
+				}
+								
+				const metadata : MetadataInfo = new MetadataInfo(metadataName, metadataParameters);
+				
+				metadatas.push(metadata);
+			}
+			
 			return new MethodInfo(	owner, 
 									name, 
 									getMemberFullName(name, owner), 
@@ -284,7 +304,8 @@ package org.flemit.reflection
 									isStatic, 
 									isOverride, 
 									returnType, 
-									parameters, 
+									parameters,
+									metadatas, 
 									uri
 									);
 		}

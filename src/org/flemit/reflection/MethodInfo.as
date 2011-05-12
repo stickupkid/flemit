@@ -7,6 +7,8 @@ package org.flemit.reflection
 		
 		private var _parameters : Array;
 		
+		private var _metadata : Array;
+		
 		public function MethodInfo(	type : Type, 
 									name : String, 
 									fullName : String, 
@@ -15,6 +17,7 @@ package org.flemit.reflection
 									isOverride : Boolean, 
 									returnType : Type,  
 									parameters : Array, 
+									metadata : Array = null,
 									ns : String = null
 									)
 		{
@@ -22,6 +25,7 @@ package org.flemit.reflection
 			
 			_returnType = returnType;
 			_parameters = parameters ? [].concat(parameters) : [];
+			_metadata = metadata ? [].concat(metadata) : [];
 		}
 		
 		public function get returnType() : Type
@@ -32,6 +36,11 @@ package org.flemit.reflection
 		public function get parameters() : Array
 		{
 			return [].concat(_parameters);
+		}
+		
+		public function get metadata() : Array
+		{
+			return [].concat(_metadata);
 		}
 		
 		public function clone() : MethodInfo
