@@ -72,7 +72,6 @@ package org.flemit.bytecode
 			registerMultiname(Type.star.qname);
 		}
 		
-		
 		public function dispose() : void
 		{
 			_integers.length = 0;
@@ -463,7 +462,7 @@ package org.flemit.bytecode
 			
 			for each(var method : MethodInfo in _methods)
 			{
-				const params : Array = [].concat(method.parameters);
+				const params : Array = method.parameters;
 				const needsRest : Boolean = needsRest(method);
 				
 				if (needsRest) params.pop();

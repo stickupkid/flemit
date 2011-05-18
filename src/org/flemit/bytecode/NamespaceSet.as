@@ -7,7 +7,7 @@ package org.flemit.bytecode
 		
 		public function NamespaceSet(namespaces : Array)
 		{
-			_namespaces = [].concat(namespaces);
+			_namespaces = namespaces;
 		}
 		
 		public function equals(object : IEqualityComparable) : Boolean 

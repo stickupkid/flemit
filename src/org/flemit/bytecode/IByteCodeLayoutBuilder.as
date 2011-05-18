@@ -8,5 +8,7 @@ package org.flemit.bytecode
 		function registerType(type : Type) : void;
 		
 		function createLayout() : IByteCodeLayout;
+		
+		function dispose() : void;
 	}
 }

@@ -24,8 +24,8 @@ package org.flemit.reflection
 			super(type, name, fullName, visibility, isStatic, isOverride, ns);
 			
 			_returnType = returnType;
-			_parameters = parameters ? [].concat(parameters) : [];
-			_metadata = metadata ? [].concat(metadata) : [];
+			_parameters = parameters ? parameters : [];
+			_metadata = metadata ? metadata : [];
 		}
 		
 		public function get returnType() : Type
@@ -35,12 +35,12 @@ package org.flemit.reflection
 		
 		public function get parameters() : Array
 		{
-			return [].concat(_parameters);
+			return _parameters;
 		}
 		
 		public function get metadata() : Array
 		{
-			return [].concat(_metadata);
+			return _metadata;
 		}
 		
 		public function clone() : MethodInfo

@@ -15,7 +15,7 @@ package org.flemit.bytecode
 			super(kind);
 			
 			_typeDefinition = typeDefinition;
-			_genericParameters = [].concat(genericParameters);
+			_genericParameters = genericParameters;
 		}
 		
 		

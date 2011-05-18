@@ -184,6 +184,21 @@ package org.flemit.reflection
 			return type;
 		}
 		
+		public static function clearCache() : void
+		{
+			for each(var type : Type in _cachedTypes)
+			{
+				type.dispose();
+				type = null;
+			}
+			
+			for(var item : String in _cachedTypes)
+			{
+				_cachedTypes[item] = null;
+				delete _cachedTypes[item];
+			}
+		}
+		
 		private static function createStar() : Type
 		{
 			return new Type(new QualifiedName(BCNamespace.packageNS("*"), "*"));
@@ -417,7 +432,7 @@ package org.flemit.reflection
 		
 		public function getInterfaces() : Array
 		{
-			return [].concat(_interfaces);
+			return _interfaces;
 		}
 		
 		private function findMember(members : Array, name : String, ns : String) : MemberInfo
@@ -517,7 +532,7 @@ package org.flemit.reflection
 		
 		public function get genericTypeDefinition() : Type { return _genericTypeDefinition; }
 
-		public function get genericParameters() : Array { return [].concat(_genericParameters); }
+		public function get genericParameters() : Array { return _genericParameters; }
 
 		public function get isGeneric() : Boolean
 		{
@@ -555,5 +570,49 @@ package org.flemit.reflection
 		public function get isInterface() : Boolean { return _isInterface; }
 		
 		public function get typeNamespace() : BCNamespace { return _typeNamespace; }
+		
+		public function dispose() : void
+		{
+			_scriptInitialiser = null;
+			_staticInitialiser = null;
+			
+			_qname = null;
+			_multiname = null;
+			_baseClass = null;
+			_constructor = null;
+			_typeNamespace = null;
+			_multiNamespaceName = null;
+			_genericTypeDefinition = null;
+			
+			if(null != _genericParameters)
+			{
+				_genericParameters.length = 0;
+				_genericParameters = null;
+			}
+			
+			if(null != _properties)
+			{
+				_properties.length = 0;
+				_properties = null;
+			}
+			
+			if(null != _methods)
+			{
+				_methods.length = 0;
+				_methods = null;
+			}
+			
+			if(null != _fields)
+			{
+				_fields.length = 0;
+				_fields = null;
+			}
+			
+			if(null != _interfaces)
+			{
+				_interfaces.length = 0;
+				_interfaces = null;
+			}
+		}
 	}
 }

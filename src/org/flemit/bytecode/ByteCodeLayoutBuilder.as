@@ -39,7 +39,7 @@ package org.flemit.bytecode
 		
 		public function createLayout() : IByteCodeLayout
 		{
-			var layout : ByteCodeLayout = new ByteCodeLayout();
+			const layout : ByteCodeLayout = new ByteCodeLayout();
 			
 			for each(var type : Type in _types)
 			{
@@ -70,6 +70,16 @@ package org.flemit.bytecode
 			}
 			
 			return layout;
+		}
+		
+		public function dispose() : void
+		{
+			var index : int = _types.length;
+			while(--index > -1)
+			{
+				_types.pop();
+			}
+			_types.length = 0;
 		}
 		
 		private function isIgnored(type : Type) : Boolean
